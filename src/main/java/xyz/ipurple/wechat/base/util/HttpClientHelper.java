@@ -80,10 +80,10 @@ public class HttpClientHelper {
         try {
             CookieStore cookieStore = new BasicCookieStore();
             if (StringUtils.isNotBlank(cookie)) {
-                /*BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
+                BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
                 basicClientCookie.setDomain("wx.qq.com");
                 basicClientCookie.setPath("/");
-                cookieStore.addCookie(basicClientCookie);*/
+                cookieStore.addCookie(basicClientCookie);
             }
             CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
             HttpPost httpPost = new HttpPost(url);
@@ -173,7 +173,7 @@ public class HttpClientHelper {
         List<Cookie> cookies = cookieStore.getCookies();
         for (int i = 0; i < cookies.size(); i++) {
             cookie.append(cookies.get(i).getName())
-                    .append(":")
+                    .append("=")
                     .append(cookies.get(i).getValue())
                     .append(";");
             if (cookies.get(i).getName().equals("JSESSIONID")) {
