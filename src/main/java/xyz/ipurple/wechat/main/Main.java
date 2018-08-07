@@ -8,8 +8,8 @@ import xyz.ipurple.wechat.login.core.Login;
 public class Main {
 
     public static void main(String[] args) {
-//        Login login = new Login();
-//        login.doLogin();
+        Login login = new Login();
+        login.doLogin();
 
         System.out.println(System.currentTimeMillis());
     }

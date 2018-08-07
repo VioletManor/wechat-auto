@@ -1,5 +1,6 @@
 package xyz.ipurple.wechat.base.util;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -9,6 +10,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -35,13 +37,17 @@ public class HttpClientHelper {
         String responseContent = "";
         try {
             CookieStore cookieStore = new BasicCookieStore();
+            if (StringUtils.isNotBlank(cookie)) {
+                BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
+                basicClientCookie.setDomain("wx.qq.com");
+                basicClientCookie.setPath("/");
+                cookieStore.addCookie(basicClientCookie);
+            }
             CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
             HttpPost httpPost = new HttpPost(url);
 
-            if (StringUtils.isNotBlank(cookie)) {
-                httpPost.setHeader("cookie", cookie);
-            }
             if (params != null) {
+//                StringEntity se = new StringEntity(JSON.toJSONString(params), "application/json", "utf-8");
                 httpPost.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
             }
             CloseableHttpResponse response = httpClient.execute(httpPost);
@@ -54,7 +60,8 @@ public class HttpClientHelper {
 
             httpResponse = new HttpResponse();
             httpResponse.setContent(responseContent);
-            httpResponse.setCookie(getCookie(cookieStore));
+            getCookie(cookieStore, httpResponse);
+//            httpResponse.setCookie(getCookie(cookieStore));
             //释放资源
             EntityUtils.consume(httpEntity);
         } catch (UnsupportedEncodingException e) {
@@ -66,6 +73,52 @@ public class HttpClientHelper {
         }
         return httpResponse;
     }
+
+    public static HttpResponse doPost(String url, List<NameValuePair> params, String cookie, String payLoad, String contentType) {
+        HttpResponse httpResponse = null;
+        String responseContent = "";
+        try {
+            CookieStore cookieStore = new BasicCookieStore();
+            if (StringUtils.isNotBlank(cookie)) {
+                /*BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
+                basicClientCookie.setDomain("wx.qq.com");
+                basicClientCookie.setPath("/");
+                cookieStore.addCookie(basicClientCookie);*/
+            }
+            CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+            HttpPost httpPost = new HttpPost(url);
+
+            if (StringUtils.isNotBlank(payLoad)) {
+                StringEntity se = new StringEntity(payLoad, contentType, "utf-8");
+                httpPost.setEntity(se);
+            }
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+
+            //获取响应内容
+            HttpEntity httpEntity = response.getEntity();
+            if (httpEntity != null) {
+                responseContent = EntityUtils.toString(httpEntity, "utf-8");
+            }
+
+            httpResponse = new HttpResponse();
+            httpResponse.setContent(responseContent);
+            getCookie(cookieStore, httpResponse);
+//            httpResponse.setCookie(getCookie(cookieStore));
+            //释放资源
+            EntityUtils.consume(httpEntity);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return httpResponse;
+    }
+
+
+
+
 
     public static void doPostFile(String url, List<NameValuePair> params, String path, String fileName) {
         InputStream in = null;
@@ -113,16 +166,28 @@ public class HttpClientHelper {
         return response.getEntity();
     }
 
-    private static String getCookie(CookieStore cookieStore) {
+    private static void getCookie(CookieStore cookieStore, HttpResponse httpResponse) {
         StringBuffer cookie = new StringBuffer();
+        String jsessionId = null;
+        String cookieUser = null;
         List<Cookie> cookies = cookieStore.getCookies();
         for (int i = 0; i < cookies.size(); i++) {
             cookie.append(cookies.get(i).getName())
                     .append(":")
                     .append(cookies.get(i).getValue())
                     .append(";");
+            if (cookies.get(i).getName().equals("JSESSIONID")) {
+                jsessionId = cookies.get(i).getValue();
+                System.out.println(jsessionId);
+            }
+            if (cookies.get(i).getName().equals("cookie_user")) {
+                cookieUser = cookies.get(i).getValue();
+                System.out.println(cookieUser);
+            }
         }
-        return cookie.toString();
+        httpResponse.setCookie(cookie.toString());
+        httpResponse.setjSessionId(jsessionId);
+        httpResponse.setCookieUser(cookieUser);
     }
 
 }

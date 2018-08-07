@@ -1,6 +1,7 @@
 package xyz.ipurple.wechat.base.util;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -93,7 +94,7 @@ public class WechatHelper {
      */
     public static WechatInfo redirect(String res) {
         String redirectUri = MatcheHelper.matches("window.redirect_uri=\"(.*)\"", res);
-        HttpResponse httpResponse = HttpClientHelper.doPost(redirectUri, null);
+        HttpResponse httpResponse = HttpClientHelper.doPost(redirectUri+"&fun=new", null);
         String content = httpResponse.getContent();
 
         String skey = MatcheHelper.matches("<skey>(.*)</skey>", content);
@@ -107,7 +108,7 @@ public class WechatHelper {
         info.setSkey(skey);
         info.setWxsid(wxsid);
         info.setWxuin(wxuin);
-        System.out.println(passTicket);
+        System.out.println(info.toString());
         return info;
     }
 
@@ -115,9 +116,20 @@ public class WechatHelper {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("lang", "zh_CN"));
         params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
-        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.INIT_URL, params);
+        params.add(new BasicNameValuePair("r", System.currentTimeMillis()+""));
+
+        JSONObject json = new JSONObject();
+        json.put("DeviceID", wechatInfo.getDeviceId());
+        json.put("Sid", wechatInfo.getWxsid());
+        json.put("Skey", wechatInfo.getSkey());
+        json.put("Uin", wechatInfo.getWxuin());
+        JSONObject payLoad = new JSONObject();
+        payLoad.put("BaseRequest", json);
+        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.INIT_URL, params, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
         String content = httpResponse.getContent();
         WechatInitEntity wechatInitEntity = JSON.parseObject(content, WechatInitEntity.class);
+
+        System.out.println(payLoad.toJSONString());
         System.out.println(content);
     }
 }

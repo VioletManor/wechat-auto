@@ -15,6 +15,18 @@ public class WechatInfo {
     private String deviceId = "e" + System.currentTimeMillis();
     private String cookie;
 
+    @Override
+    public String toString() {
+        return "WechatInfo{" +
+                "skey='" + skey + '\'' +
+                ", wxsid='" + wxsid + '\'' +
+                ", wxuin='" + wxuin + '\'' +
+                ", passicket='" + passicket + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                ", cookie='" + cookie + '\'' +
+                '}';
+    }
+
     public String getSkey() {
         return skey;
     }
