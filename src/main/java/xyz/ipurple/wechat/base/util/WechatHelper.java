@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: WechatHelper
@@ -169,6 +170,10 @@ public class WechatHelper {
         payLoad.put("FromUserName", wechatInfo.getUser().getUserName());
         payLoad.put("ToUserName", wechatInfo.getUser().getUserName());
 
-        HttpClientHelper.doPost(Constants.STATUS_NOTIFY_URL, params,wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
+        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.STATUS_NOTIFY_URL, params, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
+        JSONObject notifyResponse = JSON.parseObject(httpResponse.getContent());
+        if (!((JSONObject) notifyResponse.get("BaseResponse")).get("Ret").equals(0)) {
+            throw new RuntimeException("消息通知开启失败");
+        }
     }
 }

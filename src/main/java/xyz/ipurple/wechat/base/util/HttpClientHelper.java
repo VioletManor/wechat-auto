@@ -175,7 +175,7 @@ public class HttpClientHelper {
             CookieStore cookieStore = new BasicCookieStore();
             if (StringUtils.isNotBlank(cookie)) {
                 BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
-                basicClientCookie.setDomain("wx.qq.com");
+                basicClientCookie.setDomain("webpush.wx.qq.com");
                 basicClientCookie.setPath("/");
                 cookieStore.addCookie(basicClientCookie);
             }
@@ -191,8 +191,6 @@ public class HttpClientHelper {
 
             httpResponse = new HttpResponse();
             httpResponse.setContent(responseContent);
-            getCookie(cookieStore, httpResponse);
-//            httpResponse.setCookie(getCookie(cookieStore));
             //释放资源
             EntityUtils.consume(httpEntity);
         } catch (UnsupportedEncodingException e) {

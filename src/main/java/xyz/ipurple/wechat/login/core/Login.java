@@ -30,7 +30,6 @@ public class Login implements Runnable{
         //等待扫码验证登陆
         while (true) {
             String res = WechatHelper.waitLogin(0, qrLoginUUID);
-            System.out.println(res);
             String code = MatcheHelper.matches("window.code=(\\d+);", res);
             if (!Constants.HTTP_OK.equals(code)) {
                 try {

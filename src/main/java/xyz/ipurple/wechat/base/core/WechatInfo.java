@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import xyz.ipurple.wechat.base.core.init.UserEntity;
 import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
 
+import java.util.Random;
+
 /**
  * @author: zcy
  * @Description:
@@ -16,7 +18,7 @@ public class WechatInfo {
     private String wxsid;
     private String wxuin;
     private String passicket;
-    private String deviceId = "e" + System.currentTimeMillis();
+    private String deviceId = "e20" + System.currentTimeMillis();
     private String cookie;
     private String syncKeyStr;
     private SyncKeyEntity syncKey;
