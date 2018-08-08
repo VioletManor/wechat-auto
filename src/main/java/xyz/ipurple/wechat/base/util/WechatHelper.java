@@ -6,12 +6,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import xyz.ipurple.wechat.base.core.WechatInfo;
-import xyz.ipurple.wechat.base.core.WechatInitEntity;
+import xyz.ipurple.wechat.base.core.init.ContactEntity;
+import xyz.ipurple.wechat.base.core.init.WechatInitEntity;
+import xyz.ipurple.wechat.base.core.sync.key.KeyEntity;
+import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -108,7 +112,13 @@ public class WechatHelper {
         info.setSkey(skey);
         info.setWxsid(wxsid);
         info.setWxuin(wxuin);
-        System.out.println(info.toString());
+
+        JSONObject json = new JSONObject();
+        json.put("DeviceID", info.getDeviceId());
+        json.put("Sid", info.getWxsid());
+        json.put("Skey", info.getSkey());
+        json.put("Uin", info.getWxuin());
+        info.setPayLoad(json);
         return info;
     }
 
@@ -118,18 +128,47 @@ public class WechatHelper {
         params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
         params.add(new BasicNameValuePair("r", System.currentTimeMillis()+""));
 
-        JSONObject json = new JSONObject();
-        json.put("DeviceID", wechatInfo.getDeviceId());
-        json.put("Sid", wechatInfo.getWxsid());
-        json.put("Skey", wechatInfo.getSkey());
-        json.put("Uin", wechatInfo.getWxuin());
         JSONObject payLoad = new JSONObject();
-        payLoad.put("BaseRequest", json);
+        payLoad.put("BaseRequest", wechatInfo.getPayLoad());
         HttpResponse httpResponse = HttpClientHelper.doPost(Constants.INIT_URL, params, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
         String content = httpResponse.getContent();
         WechatInitEntity wechatInitEntity = JSON.parseObject(content, WechatInitEntity.class);
+        //获取登陆人信息
+        wechatInfo.setUser(wechatInitEntity.getUser());
 
-        System.out.println(payLoad.toJSONString());
-        System.out.println(content);
+        //获取sync 字符串型
+        StringBuffer sb = new StringBuffer();
+        Iterator<KeyEntity> syncKeyIt = wechatInitEntity.getSyncKey().getList().iterator();
+        while (syncKeyIt.hasNext()) {
+            KeyEntity next = syncKeyIt.next();
+            sb.append("|")
+                    .append(next.getKey())
+                    .append("_")
+                    .append(next.getVal())
+                    ;
+        }
+        wechatInfo.setSyncKeyStr(sb.substring(1));
+        wechatInfo.setSyncKey(wechatInitEntity.getSyncKey());
+
+        Iterator<ContactEntity> iterator = wechatInitEntity.getContactList().iterator();
+        while (iterator.hasNext()) {
+            ContactEntity next = iterator.next();
+            System.out.println(next.getUserName() + "  ||  " + next.getNickName());
+        }
+    }
+
+    public static void statusNotify(WechatInfo wechatInfo) {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("lang", "zh_CN"));
+        params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
+
+        JSONObject payLoad = new JSONObject();
+        payLoad.put("BaseRequest", wechatInfo.getPayLoad());
+        payLoad.put("ClientMsgId", System.currentTimeMillis());
+        payLoad.put("Code", 3);
+        payLoad.put("FromUserName", wechatInfo.getUser().getUserName());
+        payLoad.put("ToUserName", wechatInfo.getUser().getUserName());
+
+        HttpClientHelper.doPost(Constants.STATUS_NOTIFY_URL, params,wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
     }
 }

@@ -1,8 +1,10 @@
 package xyz.ipurple.wechat.login.core;
 
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 import xyz.ipurple.wechat.base.core.WechatInfo;
-import xyz.ipurple.wechat.base.util.*;
+import xyz.ipurple.wechat.base.util.Constants;
+import xyz.ipurple.wechat.base.util.MatcheHelper;
+import xyz.ipurple.wechat.base.util.WechatHelper;
+import xyz.ipurple.wechat.listener.WechatListener;
 
 /**
  * @ClassName: Login
@@ -11,7 +13,8 @@ import xyz.ipurple.wechat.base.util.*;
  * @Date: 2018/8/6 10:30
  * @Version: 1.0
  */
-public class Login {
+public class Login implements Runnable{
+    public static final ThreadLocal<WechatInfo> WECHAT_INFO_THREAD_LOCAL = new ThreadLocal<WechatInfo>();
 
     /**
      * sign in wechat
@@ -22,6 +25,8 @@ public class Login {
         //扫码登陆
         String qrCodePath = WechatHelper.getQrCode(qrLoginUUID);
         WechatHelper.showQrCode(qrCodePath);
+
+        WechatInfo wechatInfo = null;
         //等待扫码验证登陆
         while (true) {
             String res = WechatHelper.waitLogin(0, qrLoginUUID);
@@ -38,10 +43,25 @@ public class Login {
             //关闭二维码窗口
             WechatHelper.closeQrCode();
             //扫码后跳转至redirectUrl，并初始化基础信息
-            WechatInfo wechatInfo = WechatHelper.redirect(res);
-            WechatHelper.init(wechatInfo);
-
+            wechatInfo = WechatHelper.redirect(res);
             break;
+        }
+        //登陆成功后进行初始化
+        WechatHelper.init(wechatInfo);
+        WECHAT_INFO_THREAD_LOCAL.set(wechatInfo);
+        //状态更新
+        WechatHelper.statusNotify(wechatInfo);
+    }
+
+    public void run() {
+        try {
+            //登陆
+            doLogin();
+            //监听消息
+            new WechatListener().listen();
+        } catch (Exception e){
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
         }
     }
 }

@@ -1,5 +1,7 @@
 package xyz.ipurple.wechat.base.core.init;
 
+import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
+
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public class WechatInitEntity {
     private int MPSubscribeMsgCount;
     private List MPSubscribeMsgList;
     private String SKey;
-    private List SyncKey;
+    private SyncKeyEntity SyncKey;
     private Long SystemTime;
     private UserEntity User;
 
@@ -115,11 +117,11 @@ public class WechatInitEntity {
         this.SKey = SKey;
     }
 
-    public List getSyncKey() {
+    public SyncKeyEntity getSyncKey() {
         return SyncKey;
     }
 
-    public void setSyncKey(List syncKey) {
+    public void setSyncKey(SyncKeyEntity syncKey) {
         SyncKey = syncKey;
     }
 

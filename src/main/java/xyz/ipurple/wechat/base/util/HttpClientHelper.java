@@ -8,6 +8,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
@@ -166,6 +167,45 @@ public class HttpClientHelper {
         return response.getEntity();
     }
 
+
+    public static HttpResponse doGet(String url, String cookie) {
+        HttpResponse httpResponse = null;
+        String responseContent = "";
+        try {
+            CookieStore cookieStore = new BasicCookieStore();
+            if (StringUtils.isNotBlank(cookie)) {
+                BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
+                basicClientCookie.setDomain("wx.qq.com");
+                basicClientCookie.setPath("/");
+                cookieStore.addCookie(basicClientCookie);
+            }
+            CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+            HttpGet httpGet = new HttpGet(url);
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+
+            //获取响应内容
+            HttpEntity httpEntity = response.getEntity();
+            if (httpEntity != null) {
+                responseContent = EntityUtils.toString(httpEntity, "utf-8");
+            }
+
+            httpResponse = new HttpResponse();
+            httpResponse.setContent(responseContent);
+            getCookie(cookieStore, httpResponse);
+//            httpResponse.setCookie(getCookie(cookieStore));
+            //释放资源
+            EntityUtils.consume(httpEntity);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return httpResponse;
+    }
+
+
     private static void getCookie(CookieStore cookieStore, HttpResponse httpResponse) {
         StringBuffer cookie = new StringBuffer();
         String jsessionId = null;
@@ -178,11 +218,9 @@ public class HttpClientHelper {
                     .append(";");
             if (cookies.get(i).getName().equals("JSESSIONID")) {
                 jsessionId = cookies.get(i).getValue();
-                System.out.println(jsessionId);
             }
             if (cookies.get(i).getName().equals("cookie_user")) {
                 cookieUser = cookies.get(i).getValue();
-                System.out.println(cookieUser);
             }
         }
         httpResponse.setCookie(cookie.toString());

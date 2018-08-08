@@ -1,6 +1,10 @@
 package xyz.ipurple.wechat.base.core;
 
 
+import com.alibaba.fastjson.JSONObject;
+import xyz.ipurple.wechat.base.core.init.UserEntity;
+import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
+
 /**
  * @author: zcy
  * @Description:
@@ -14,6 +18,10 @@ public class WechatInfo {
     private String passicket;
     private String deviceId = "e" + System.currentTimeMillis();
     private String cookie;
+    private String syncKeyStr;
+    private SyncKeyEntity syncKey;
+    private JSONObject payLoad;
+    private UserEntity user;
 
     @Override
     public String toString() {
@@ -73,5 +81,37 @@ public class WechatInfo {
 
     public void setCookie(String cookie) {
         this.cookie = cookie;
+    }
+
+    public String getSyncKeyStr() {
+        return syncKeyStr;
+    }
+
+    public void setSyncKeyStr(String syncKeyStr) {
+        this.syncKeyStr = syncKeyStr;
+    }
+
+    public SyncKeyEntity getSyncKey() {
+        return syncKey;
+    }
+
+    public void setSyncKey(SyncKeyEntity syncKey) {
+        this.syncKey = syncKey;
+    }
+
+    public JSONObject getPayLoad() {
+        return payLoad;
+    }
+
+    public void setPayLoad(JSONObject payLoad) {
+        this.payLoad = payLoad;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }
