@@ -1,4 +1,4 @@
-package xyz.ipurple.wechat.base.core;
+package xyz.ipurple.wechat.base.core.init;
 
 import java.util.List;
 
@@ -27,11 +27,11 @@ public class WechatInitEntity {
     private Long SystemTime;
     private UserEntity User;
 
-    public xyz.ipurple.wechat.base.core.BaseResponse getBaseResponse() {
+    public xyz.ipurple.wechat.base.core.init.BaseResponse getBaseResponse() {
         return BaseResponse;
     }
 
-    public void setBaseResponse(xyz.ipurple.wechat.base.core.BaseResponse baseResponse) {
+    public void setBaseResponse(xyz.ipurple.wechat.base.core.init.BaseResponse baseResponse) {
         BaseResponse = baseResponse;
     }
 

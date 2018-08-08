@@ -1,4 +1,4 @@
-package xyz.ipurple.wechat.base.core;
+package xyz.ipurple.wechat.base.core.init;
 
 import java.util.List;
 
