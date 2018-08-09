@@ -29,6 +29,26 @@ public class WechatInitEntity {
     private Long SystemTime;
     private UserEntity User;
 
+    @Override
+    public String toString() {
+        return "WechatInitEntity{" +
+                "BaseResponse=" + BaseResponse +
+                ", ChatSet='" + ChatSet + '\'' +
+                ", ClickReportInterval=" + ClickReportInterval +
+                ", ClientVersion=" + ClientVersion +
+                ", ContactList=" + ContactList +
+                ", Count=" + Count +
+                ", GrayScale=" + GrayScale +
+                ", InviteStartCount=" + InviteStartCount +
+                ", MPSubscribeMsgCount=" + MPSubscribeMsgCount +
+                ", MPSubscribeMsgList=" + MPSubscribeMsgList +
+                ", SKey='" + SKey + '\'' +
+                ", SyncKey=" + SyncKey +
+                ", SystemTime=" + SystemTime +
+                ", User=" + User +
+                '}';
+    }
+
     public xyz.ipurple.wechat.base.core.init.BaseResponse getBaseResponse() {
         return BaseResponse;
     }

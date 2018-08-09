@@ -76,18 +76,24 @@ public class WechatListener {
         payLoad.put("SyncKey", wechatInfo.getSyncKey());
         payLoad.put("rr", ~new Date().hashCode());
 
-        /*List<NameValuePair> params = new ArrayList<NameValuePair>();
+//        payLoad.put("sid", wechatInfo.getWxsid());
+//        payLoad.put("skey", wechatInfo.getSkey());
+//        payLoad.put("lang", "zh_CN");
+//        payLoad.put("pass_ticket", wechatInfo.getPassicket());
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("sid", wechatInfo.getWxsid()));
         params.add(new BasicNameValuePair("skey", wechatInfo.getSkey()));
         params.add(new BasicNameValuePair("lang", "zh_CN"));
-        params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));*/
-        StringBuffer url = new StringBuffer();
-        url.append("?sid=").append(URLEncoder.encode(wechatInfo.getWxsid()))
-                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey()))
-                .append("&lang=").append("zh_CN")
-                .append("&pass_ticket=").append(URLEncoder.encode(wechatInfo.getPassicket()));
+        params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
 
-        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.WEB_WX_SYNC_URL + url.toString(), null, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
+        /*StringBuffer url = new StringBuffer();
+        url.append("?sid=").append(wechatInfo.getWxsid())
+                .append("&skey=").append(wechatInfo.getSkey())
+//                .append("&lang=").append("zh_CN")
+                .append("&pass_ticket=").append(wechatInfo.getPassicket());*/
+//        System.out.println(Constants.SYNC_URL + url.toString());
+        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.SYNC_URL, params, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
         return httpResponse.getContent();
     }
 }

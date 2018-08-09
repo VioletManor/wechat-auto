@@ -15,7 +15,7 @@ public class ContactEntity {
      * contactFlag为3且这个有值
      * 可能是联系人
      */
-    private int AttrStatus;
+    private Long AttrStatus;
     private int ChatRoomId;
     /**
      * 市
@@ -85,11 +85,11 @@ public class ContactEntity {
         AppAccountFlag = appAccountFlag;
     }
 
-    public int getAttrStatus() {
+    public Long getAttrStatus() {
         return AttrStatus;
     }
 
-    public void setAttrStatus(int attrStatus) {
+    public void setAttrStatus(Long attrStatus) {
         AttrStatus = attrStatus;
     }
 

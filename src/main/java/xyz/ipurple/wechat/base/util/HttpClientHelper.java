@@ -10,6 +10,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -19,6 +20,9 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -79,15 +83,24 @@ public class HttpClientHelper {
         HttpResponse httpResponse = null;
         String responseContent = "";
         try {
-            CookieStore cookieStore = new BasicCookieStore();
+            URL reqURL = new URL(url);
+            URI urlTemp = reqURL.toURI();
+            URIBuilder uriBuilder = new URIBuilder().setScheme(urlTemp.getScheme()).setHost(urlTemp.getHost()).setPort(urlTemp.getPort()).setPath(urlTemp.getPath());
+            uriBuilder.setParameters(params);
+            URI uri = uriBuilder.build();
+
+
+            /*CookieStore cookieStore = new BasicCookieStore();
             if (StringUtils.isNotBlank(cookie)) {
                 BasicClientCookie basicClientCookie = new BasicClientCookie("JSESSIONID", cookie);
                 basicClientCookie.setDomain("wx.qq.com");
                 basicClientCookie.setPath("/");
                 cookieStore.addCookie(basicClientCookie);
             }
-            CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
-            HttpPost httpPost = new HttpPost(url);
+            CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();*/
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(uri);
+            httpPost.setHeader("Cookie",cookie);
 
             if (StringUtils.isNotBlank(payLoad)) {
                 StringEntity se = new StringEntity(payLoad, contentType, "utf-8");
@@ -103,7 +116,7 @@ public class HttpClientHelper {
 
             httpResponse = new HttpResponse();
             httpResponse.setContent(responseContent);
-            getCookie(cookieStore, httpResponse);
+//            getCookie(cookieStore, httpResponse);
 //            httpResponse.setCookie(getCookie(cookieStore));
             //释放资源
             EntityUtils.consume(httpEntity);
@@ -112,6 +125,8 @@ public class HttpClientHelper {
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
         return httpResponse;

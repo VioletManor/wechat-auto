@@ -33,7 +33,12 @@ public class Constants {
     /**
      * 消息同步
      */
-    public static final String WEB_WX_SYNC_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync";
+    public static final String SYNC_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsync";
+
+    /**
+     * 获取联系人
+     */
+    public static final String GET_CONTACT_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetcontact";
     /**
      * 状态更新
      */

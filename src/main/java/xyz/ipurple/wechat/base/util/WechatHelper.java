@@ -9,7 +9,6 @@ import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.init.WechatInitEntity;
 import xyz.ipurple.wechat.base.core.sync.key.KeyEntity;
-import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @ClassName: WechatHelper
@@ -175,5 +173,15 @@ public class WechatHelper {
         if (!((JSONObject) notifyResponse.get("BaseResponse")).get("Ret").equals(0)) {
             throw new RuntimeException("消息通知开启失败");
         }
+    }
+
+    public static String getContact(WechatInfo wechatInfo) {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("skey", wechatInfo.getSkey()));
+        params.add(new BasicNameValuePair("r", System.currentTimeMillis()+""));
+        params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
+
+        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.GET_CONTACT_URL, params, wechatInfo.getCookie());
+        return httpResponse.getContent();
     }
 }
