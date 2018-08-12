@@ -1,7 +1,7 @@
 package xyz.ipurple.wechat.base.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+import xyz.ipurple.wechat.listener.WechatListener;
 
 import java.io.*;
 
@@ -12,7 +12,7 @@ import java.io.*;
  * @Modified By:
  */
 public class FileHelper {
-    private static final Logger logger = LoggerFactory.getLogger(FileHelper.class);
+    private static final Logger logger = Logger.getLogger(FileHelper.class);
 
     public static void createFile(InputStream in, String path, String fileName) {
         FileOutputStream fos = null;

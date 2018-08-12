@@ -37,6 +37,40 @@ public class MsgEntity {
     private String Url;
     private int VoiceLength;
 
+    @Override
+    public String toString() {
+        return "MsgEntity{" +
+                "AppInfo=" + AppInfo +
+                ", AppMsgType=" + AppMsgType +
+                ", Content='" + Content + '\'' +
+                ", CreateTime=" + CreateTime +
+                ", EncryFileName='" + EncryFileName + '\'' +
+                ", FileName='" + FileName + '\'' +
+                ", FileSize='" + FileSize + '\'' +
+                ", ForwardFlag=" + ForwardFlag +
+                ", FromUserName='" + FromUserName + '\'' +
+                ", HasProductId=" + HasProductId +
+                ", ImgHeight=" + ImgHeight +
+                ", ImgStatus=" + ImgStatus +
+                ", ImgWidth=" + ImgWidth +
+                ", MediaId='" + MediaId + '\'' +
+                ", MsgId=" + MsgId +
+                ", MsgType=" + MsgType +
+                ", NewMsgId=" + NewMsgId +
+                ", OriContent='" + OriContent + '\'' +
+                ", PlayLength=" + PlayLength +
+                ", RecommendInfo=" + RecommendInfo +
+                ", Status=" + Status +
+                ", StatusNotifyCode=" + StatusNotifyCode +
+                ", StatusNotifyUserName='" + StatusNotifyUserName + '\'' +
+                ", SubMsgType=" + SubMsgType +
+                ", Ticket='" + Ticket + '\'' +
+                ", ToUserName='" + ToUserName + '\'' +
+                ", Url='" + Url + '\'' +
+                ", VoiceLength=" + VoiceLength +
+                '}';
+    }
+
     public xyz.ipurple.wechat.base.core.sync.msg.AppInfo getAppInfo() {
         return AppInfo;
     }

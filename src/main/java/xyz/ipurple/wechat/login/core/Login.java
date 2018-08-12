@@ -1,7 +1,10 @@
 package xyz.ipurple.wechat.login.core;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import xyz.ipurple.wechat.base.core.WechatInfo;
+import xyz.ipurple.wechat.base.core.init.ContactEntity;
+import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
 import xyz.ipurple.wechat.base.util.Constants;
 import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.base.util.WechatHelper;
@@ -9,6 +12,7 @@ import xyz.ipurple.wechat.listener.WechatListener;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: Login
@@ -19,6 +23,12 @@ import java.util.List;
  */
 public class Login implements Runnable {
     public static final ThreadLocal<WechatInfo> WECHAT_INFO_THREAD_LOCAL = new ThreadLocal<WechatInfo>();
+    //保存消息
+    public static final ThreadLocal<ConcurrentHashMap<Long, MsgEntity>> MSG = new ThreadLocal<>();
+    //保存用户
+    public static final ThreadLocal<ConcurrentHashMap<String, ContactEntity>> CONTACT = new ThreadLocal<>();
+    //保存群聊
+    public static final ThreadLocal<ConcurrentHashMap<Long, ContactEntity>> GROUP_CHAT = new ThreadLocal<>();
 
     /**
      * sign in wechat
@@ -56,10 +66,11 @@ public class Login implements Runnable {
         WechatHelper.statusNotify(wechatInfo);
         //获取联系人
         String contactJson = WechatHelper.getContact(wechatInfo);
-        Iterator<JSONObject> memberListIt = JSONObject.parseObject(contactJson).getObject("MemberList", List.class).iterator();
+        Iterator<JSONObject> memberListIt = JSON.parseObject(contactJson).getObject("MemberList", List.class).iterator();
+        System.out.println("sdfsdf");
         while (memberListIt.hasNext()) {
-            JSONObject next = memberListIt.next();
-            System.out.println(next.getString("NickName"));
+            ContactEntity next = JSON.parseObject(memberListIt.next().toString(), ContactEntity.class);
+            CONTACT.get().put(next.getUserName(), next);
         }
     }
 

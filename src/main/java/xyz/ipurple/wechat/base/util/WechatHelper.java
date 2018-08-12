@@ -5,8 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.init.WechatInitEntity;
@@ -26,7 +25,7 @@ import java.util.List;
  * @Version: 1.0
  */
 public class WechatHelper {
-    private static final Logger logger = LoggerFactory.getLogger(WechatHelper.class);
+    private static final Logger logger = Logger.getLogger(WechatHelper.class);
 
     //    private static final ThreadLocal<QRCodeWindow> QR_CODE_WINDOW = new ThreadLocal<QRCodeWindow>();
     private static QRCodeWindow QR_CODE_WINDOW = null;
@@ -147,7 +146,7 @@ public class WechatHelper {
         Iterator<ContactEntity> iterator = wechatInitEntity.getContactList().iterator();
         while (iterator.hasNext()) {
             ContactEntity next = iterator.next();
-            System.out.println(next.getUserName() + "  ||  " + next.getNickName());
+            logger.info(next.getUserName() + "  ||  " + next.getNickName());
         }
     }
 
@@ -179,6 +178,11 @@ public class WechatHelper {
         params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
 
         HttpResponse httpResponse = HttpClientHelper.build(Constants.GET_CONTACT_URL, wechatInfo.getCookie()).setParams(params).doPost();
+        JSONObject contact = JSONObject.parseObject(httpResponse.getContent());
+        String ret = contact.getJSONObject("BaseResponse").getString("Ret");
+        if (!ret.equals("0")) {
+            logger.error("获取联系人失败");
+        }
         return httpResponse.getContent();
     }
 

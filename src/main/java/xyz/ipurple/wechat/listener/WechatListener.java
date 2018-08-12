@@ -2,8 +2,7 @@ package xyz.ipurple.wechat.listener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
@@ -17,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: WechatListener
@@ -27,38 +26,26 @@ import java.util.Map;
  * @Version: 1.0
  */
 public class WechatListener {
-    private static final Logger logger = LoggerFactory.getLogger(WechatListener.class);
+    private static final Logger logger = Logger.getLogger(WechatListener.class);
 
     public void listen() {
         WechatInfo wechatInfo = Login.WECHAT_INFO_THREAD_LOCAL.get();
         while (true) {
             try {
-                logger.info("正在监听消息:");
-                System.out.println("正在监听消息: ");
-                wechatInfo.setDeviceId("e" + System.currentTimeMillis());
-                Map<String, String> syncCheck = JSON.parseObject(syncCheck(wechatInfo).split("=")[1], Map.class);
-                String selector = syncCheck.get("selector");
-                String retcode = syncCheck.get("retcode");
-                if (!retcode.equals("0")) {
-                    throw new RuntimeException("sync check 失败");
-                }
-                if (selector.equals("0")) {
-                    System.out.printf("未检测到新消息");
-                }
+                logger.info("正在监听:");
+//                wechatInfo.setDeviceId("e" + System.currentTimeMillis());
+                String selector = syncCheck(wechatInfo);
                 if (selector.equals("2")) {
-                    SyncEntity syncEntity = JSON.parseObject(getTextMsg(wechatInfo), SyncEntity.class);
-                    wechatInfo.setSyncKey(syncEntity.getSyncKey());
-                    wechatInfo.setSyncKeyStr(WechatHelper.createSyncKey(syncEntity.getSyncKey()));
-                    int ret = syncEntity.getBaseResponse().getRet();
-                    if (ret != 0) {
-                        throw new RuntimeException("获取最新消息失败");
-                    } else {
-                        Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
-                        while (msgIt.hasNext()) {
-                            MsgEntity next = msgIt.next();
-                            System.out.println(next.getContent());
-                            logger.info(next.getContent());
+                    SyncEntity syncEntity = getTextMsg(wechatInfo);
+                    Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
+                    while (msgIt.hasNext()) {
+                        MsgEntity next = msgIt.next();
+                        if (next.getMsgType() == 10002) {
+                            //获取撤回的消息，并发送给文件助手
+                            logger.info("有撤回消息：" + next.toString());
                         }
+                        System.out.println(next.getContent());
+                        logger.info(next.getContent());
                     }
                     continue;
                 }
@@ -68,6 +55,11 @@ public class WechatListener {
         }
     }
 
+    /**
+     * 检查是否有最新消息
+     * @param wechatInfo
+     * @return
+     */
     public String syncCheck(WechatInfo wechatInfo) {
         StringBuffer url = new StringBuffer();
         url.append("?r=").append(System.currentTimeMillis())
@@ -79,10 +71,21 @@ public class WechatListener {
                 .append("&_=").append(System.currentTimeMillis());
 
         HttpResponse httpResponse = HttpClientHelper.build(Constants.SYNC_CHECK_URL + url.toString(), wechatInfo.getCookie()).doGet();
-        return httpResponse.getContent();
+        JSONObject syncCheck = JSON.parseObject(httpResponse.getContent().split("=")[1]);
+        String retcode = syncCheck.get("retcode").toString();
+        if (!retcode.equals("0")) {
+            throw new RuntimeException("sync check 失败");
+        }
+        return syncCheck.get("selector").toString();
     }
 
-    public String getTextMsg(WechatInfo wechatInfo) throws UnsupportedEncodingException {
+    /**
+     * 获取最新消息
+     * @param wechatInfo
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public SyncEntity getTextMsg(WechatInfo wechatInfo) throws UnsupportedEncodingException {
         JSONObject payLoad = new JSONObject();
         payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
         payLoad.put("SyncKey", wechatInfo.getSyncKey());
@@ -95,6 +98,15 @@ public class WechatListener {
                 .append("&pass_ticket=").append(wechatInfo.getPassicket());
 
         HttpResponse httpResponse = HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
-        return httpResponse.getContent();
+        SyncEntity syncEntity = JSON.parseObject(httpResponse.getContent(), SyncEntity.class);
+        //更新synckey
+        wechatInfo.setSyncKey(syncEntity.getSyncKey());
+        wechatInfo.setSyncKeyStr(WechatHelper.createSyncKey(syncEntity.getSyncKey()));
+        int ret = syncEntity.getBaseResponse().getRet();
+        if (ret != 0) {
+            throw new RuntimeException("获取最新消息失败");
+        }
+        Login.MSG.get().put(syncEntity.getAddMsgList().get(0).getMsgId(), syncEntity.getAddMsgList().get(0));
+        return syncEntity;
     }
 }
