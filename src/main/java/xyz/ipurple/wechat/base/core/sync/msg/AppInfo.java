@@ -2,7 +2,7 @@ package xyz.ipurple.wechat.base.core.sync.msg;
 
 /**
  * @ClassName: AppInfo
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/8 10:04
  * @Version: 1.0

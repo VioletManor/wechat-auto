@@ -1,6 +1,6 @@
 package xyz.ipurple.wechat.base.core.init;
 
-import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class WechatInitEntity {
     private int MPSubscribeMsgCount;
     private List MPSubscribeMsgList;
     private String SKey;
-    private SyncKeyEntity SyncKey;
+    private JSONObject SyncKey;
     private Long SystemTime;
     private UserEntity User;
 
@@ -137,11 +137,11 @@ public class WechatInitEntity {
         this.SKey = SKey;
     }
 
-    public SyncKeyEntity getSyncKey() {
+    public JSONObject getSyncKey() {
         return SyncKey;
     }
 
-    public void setSyncKey(SyncKeyEntity syncKey) {
+    public void setSyncKey(JSONObject syncKey) {
         SyncKey = syncKey;
     }
 

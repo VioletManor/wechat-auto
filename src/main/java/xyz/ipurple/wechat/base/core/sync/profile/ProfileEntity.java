@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * @ClassName: ProfileEntity
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/8 9:59
  * @Version: 1.0

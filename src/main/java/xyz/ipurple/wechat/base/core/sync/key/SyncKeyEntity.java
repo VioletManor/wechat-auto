@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * @ClassName: SyncKeyEntity
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/8 9:54
  * @Version: 1.0

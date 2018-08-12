@@ -3,13 +3,10 @@ package xyz.ipurple.wechat.base.core;
 
 import com.alibaba.fastjson.JSONObject;
 import xyz.ipurple.wechat.base.core.init.UserEntity;
-import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
-
-import java.util.Random;
 
 /**
  * @author: zcy
- * @Description:
+ * @Description: 微信登陆相关信息存储
  * @Date: 2018/8/6 21:57
  * @Modified By:
  */
@@ -21,8 +18,8 @@ public class WechatInfo {
     private String deviceId = "e20" + System.currentTimeMillis();
     private String cookie;
     private String syncKeyStr;
-    private SyncKeyEntity syncKey;
-    private JSONObject payLoad;
+    private JSONObject syncKey;
+    private JSONObject baseRequest;
     private UserEntity user;
 
     @Override
@@ -93,20 +90,20 @@ public class WechatInfo {
         this.syncKeyStr = syncKeyStr;
     }
 
-    public SyncKeyEntity getSyncKey() {
+    public JSONObject getSyncKey() {
         return syncKey;
     }
 
-    public void setSyncKey(SyncKeyEntity syncKey) {
+    public void setSyncKey(JSONObject syncKey) {
         this.syncKey = syncKey;
     }
 
-    public JSONObject getPayLoad() {
-        return payLoad;
+    public JSONObject getBaseRequest() {
+        return baseRequest;
     }
 
-    public void setPayLoad(JSONObject payLoad) {
-        this.payLoad = payLoad;
+    public void setBaseRequest(JSONObject baseRequest) {
+        this.baseRequest = baseRequest;
     }
 
     public UserEntity getUser() {

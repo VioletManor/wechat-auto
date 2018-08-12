@@ -1,8 +1,7 @@
 package xyz.ipurple.wechat.base.core.sync;
 
+import com.alibaba.fastjson.JSONObject;
 import xyz.ipurple.wechat.base.core.init.BaseResponse;
-import xyz.ipurple.wechat.base.core.sync.key.SyncCheckKeyEntity;
-import xyz.ipurple.wechat.base.core.sync.key.SyncKeyEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
 import xyz.ipurple.wechat.base.core.sync.profile.ProfileEntity;
 
@@ -10,7 +9,7 @@ import java.util.List;
 
 /**
  * @ClassName: SyncEntity
- * @Description: //TODO
+ * @Description: 同步消息entity
  * @Author: zcy
  * @Date: 2018/8/8 9:51
  * @Version: 1.0
@@ -28,8 +27,8 @@ public class SyncEntity {
     private List ModContactList;
     private ProfileEntity Profile;
     private String SKey;
-    private SyncCheckKeyEntity SyncCheckKey;
-    private SyncKeyEntity SyncKey;
+    private JSONObject SyncCheckKey;
+    private JSONObject SyncKey;
 
     public int getAddMsgCount() {
         return AddMsgCount;
@@ -127,19 +126,19 @@ public class SyncEntity {
         this.SKey = SKey;
     }
 
-    public SyncCheckKeyEntity getSyncCheckKey() {
+    public JSONObject getSyncCheckKey() {
         return SyncCheckKey;
     }
 
-    public void setSyncCheckKey(SyncCheckKeyEntity syncCheckKey) {
+    public void setSyncCheckKey(JSONObject syncCheckKey) {
         SyncCheckKey = syncCheckKey;
     }
 
-    public SyncKeyEntity getSyncKey() {
+    public JSONObject getSyncKey() {
         return SyncKey;
     }
 
-    public void setSyncKey(SyncKeyEntity syncKey) {
+    public void setSyncKey(JSONObject syncKey) {
         SyncKey = syncKey;
     }
 }
