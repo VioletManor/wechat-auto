@@ -2,7 +2,6 @@ package xyz.ipurple.wechat.login.core;
 
 import com.alibaba.fastjson.JSONObject;
 import xyz.ipurple.wechat.base.core.WechatInfo;
-import xyz.ipurple.wechat.base.core.init.MemberEntity;
 import xyz.ipurple.wechat.base.util.Constants;
 import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.base.util.WechatHelper;
@@ -18,13 +17,13 @@ import java.util.List;
  * @Date: 2018/8/6 10:30
  * @Version: 1.0
  */
-public class Login implements Runnable{
+public class Login implements Runnable {
     public static final ThreadLocal<WechatInfo> WECHAT_INFO_THREAD_LOCAL = new ThreadLocal<WechatInfo>();
 
     /**
      * sign in wechat
      */
-    public void doLogin(){
+    public void doLogin() {
         //获取二维码uuid
         String qrLoginUUID = WechatHelper.getQrLoginUUID();
         //扫码登陆
@@ -70,7 +69,7 @@ public class Login implements Runnable{
             doLogin();
             //监听消息
             new WechatListener().listen();
-        } catch (Exception e){
+        } catch (Exception e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }

@@ -15,7 +15,7 @@ public class MatcheHelper {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(res);
         StringBuffer sb = new StringBuffer();
-        if(matcher.find()){
+        if (matcher.find()) {
             for (int i = 1; i <= matcher.groupCount(); i++) {
                 sb.append(matcher.group(i));
             }

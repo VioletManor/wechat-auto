@@ -2,21 +2,21 @@ package xyz.ipurple.wechat.listener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import sun.rmi.runtime.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.ipurple.wechat.base.core.WechatInfo;
+import xyz.ipurple.wechat.base.core.sync.SyncEntity;
+import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
 import xyz.ipurple.wechat.base.util.Constants;
 import xyz.ipurple.wechat.base.util.HttpClientHelper;
 import xyz.ipurple.wechat.base.util.HttpResponse;
+import xyz.ipurple.wechat.base.util.WechatHelper;
 import xyz.ipurple.wechat.login.core.Login;
 
-import javax.sound.midi.Soundbank;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -27,11 +27,14 @@ import java.util.Map;
  * @Version: 1.0
  */
 public class WechatListener {
+    private static final Logger logger = LoggerFactory.getLogger(WechatListener.class);
 
     public void listen() {
         WechatInfo wechatInfo = Login.WECHAT_INFO_THREAD_LOCAL.get();
         while (true) {
             try {
+                logger.info("正在监听消息:");
+                System.out.println("正在监听消息: ");
                 wechatInfo.setDeviceId("e" + System.currentTimeMillis());
                 Map<String, String> syncCheck = JSON.parseObject(syncCheck(wechatInfo).split("=")[1], Map.class);
                 String selector = syncCheck.get("selector");
@@ -39,22 +42,33 @@ public class WechatListener {
                 if (!retcode.equals("0")) {
                     throw new RuntimeException("sync check 失败");
                 }
+                if (selector.equals("0")) {
+                    System.out.printf("未检测到新消息");
+                }
                 if (selector.equals("2")) {
-                    System.out.println("retcode ==> " + syncCheck.get("retcode") + " || " + "selector ==> " + selector);
-                    System.out.printf("收到消息： " + getTextMsg(wechatInfo));
+                    SyncEntity syncEntity = JSON.parseObject(getTextMsg(wechatInfo), SyncEntity.class);
+                    wechatInfo.setSyncKey(syncEntity.getSyncKey());
+                    wechatInfo.setSyncKeyStr(WechatHelper.createSyncKey(syncEntity.getSyncKey()));
+                    int ret = syncEntity.getBaseResponse().getRet();
+                    if (ret != 0) {
+                        throw new RuntimeException("获取最新消息失败");
+                    } else {
+                        Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
+                        while (msgIt.hasNext()) {
+                            MsgEntity next = msgIt.next();
+                            System.out.println(next.getContent());
+                            logger.info(next.getContent());
+                        }
+                    }
                     continue;
                 }
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public String syncCheck(WechatInfo wechatInfo) throws UnsupportedEncodingException {
+    public String syncCheck(WechatInfo wechatInfo) {
         StringBuffer url = new StringBuffer();
         url.append("?r=").append(System.currentTimeMillis())
                 .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey()))
@@ -64,36 +78,23 @@ public class WechatListener {
                 .append("&synckey=").append(URLEncoder.encode(wechatInfo.getSyncKeyStr()))
                 .append("&_=").append(System.currentTimeMillis());
 
-        HttpResponse httpResponse = HttpClientHelper.doGet(Constants.SYNC_CHECK_URL + url.toString(), wechatInfo.getCookie());
-        System.out.println(Constants.SYNC_CHECK_URL + url.toString());
-        System.out.println(httpResponse.getContent());
+        HttpResponse httpResponse = HttpClientHelper.build(Constants.SYNC_CHECK_URL + url.toString(), wechatInfo.getCookie()).doGet();
         return httpResponse.getContent();
     }
 
-    public String getTextMsg(WechatInfo wechatInfo) {
+    public String getTextMsg(WechatInfo wechatInfo) throws UnsupportedEncodingException {
         JSONObject payLoad = new JSONObject();
-        payLoad.put("BaseRequest", wechatInfo.getPayLoad());
+        payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
         payLoad.put("SyncKey", wechatInfo.getSyncKey());
-        payLoad.put("rr", ~new Date().hashCode());
+        payLoad.put("rr", ~new Date().getTime());
 
-//        payLoad.put("sid", wechatInfo.getWxsid());
-//        payLoad.put("skey", wechatInfo.getSkey());
-//        payLoad.put("lang", "zh_CN");
-//        payLoad.put("pass_ticket", wechatInfo.getPassicket());
+        StringBuffer url = new StringBuffer(Constants.SYNC_URL);
+        url.append("?sid=").append(URLEncoder.encode(wechatInfo.getWxsid(),"utf-8"))
+                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey(),"utf-8"))
+                .append("&lang=").append("zh_CN")
+                .append("&pass_ticket=").append(wechatInfo.getPassicket());
 
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("sid", wechatInfo.getWxsid()));
-        params.add(new BasicNameValuePair("skey", wechatInfo.getSkey()));
-        params.add(new BasicNameValuePair("lang", "zh_CN"));
-        params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
-
-        /*StringBuffer url = new StringBuffer();
-        url.append("?sid=").append(wechatInfo.getWxsid())
-                .append("&skey=").append(wechatInfo.getSkey())
-//                .append("&lang=").append("zh_CN")
-                .append("&pass_ticket=").append(wechatInfo.getPassicket());*/
-//        System.out.println(Constants.SYNC_URL + url.toString());
-        HttpResponse httpResponse = HttpClientHelper.doPost(Constants.SYNC_URL, params, wechatInfo.getCookie(), payLoad.toJSONString(), "application/json");
+        HttpResponse httpResponse = HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         return httpResponse.getContent();
     }
 }
