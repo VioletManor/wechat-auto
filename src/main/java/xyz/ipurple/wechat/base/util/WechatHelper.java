@@ -197,26 +197,24 @@ public class WechatHelper {
     public static void sendMsg(String content, int msgType, String toUserName) {
         WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
         String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
-        logger.info("clientLocalId: "+clientLocalId);
 
-        SendMsgDto msgDto = new SendMsgDto();
-        msgDto.setClientMsgId(clientLocalId);
-        msgDto.setLocalID(clientLocalId);
-        msgDto.setContent(content);
-        msgDto.setFromUserName(wechatInfo.getUser().getUserName());
-        msgDto.setType(msgType);
-        msgDto.setToUserName(toUserName);
+        JSONObject msg = new JSONObject();
+        msg.put("ClientMsgId", clientLocalId);
+        msg.put("LocalID", clientLocalId);
+        msg.put("Content", content);
+        msg.put("FromUserName", wechatInfo.getUser().getUserName());
+        msg.put("Type", msgType);
+        msg.put("ToUserName", toUserName);
 
         JSONObject payLoad = new JSONObject();
         payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
-        payLoad.put("Msg", msgDto);
+        payLoad.put("Msg", msg);
         payLoad.put("Scene", 0);
 
         String url = Constants.SEND_MSG_URL+ "?pass_ticket=" + wechatInfo.getPassicket();
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
-        logger.info(response.toString());
-        if (!response.getJSONObject("BaseResponse").getString("Ret").equals(0)) {
+        if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
             logger.error("发送撤回消息失败");
         } else {
             logger.info("发送撤回消息成功");

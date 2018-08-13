@@ -98,7 +98,7 @@ public class Login implements Runnable {
     public static ConcurrentHashMap<String, ContactEntity> getContactThreadLocal() {
         ConcurrentHashMap<String, ContactEntity> contactHashMap = CONTACT.get();
         if (null == contactHashMap) {
-            CONTACT.set(contactHashMap = new ConcurrentHashMap<>());
+            CONTACT.set(contactHashMap = new ConcurrentHashMap<>(200));
         }
         return contactHashMap;
     }

@@ -1,5 +1,6 @@
 package xyz.ipurple.wechat.main;
 
+import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.listener.WechatListener;
 import xyz.ipurple.wechat.login.core.Login;
 

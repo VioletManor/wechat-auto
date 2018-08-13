@@ -3,8 +3,10 @@ package xyz.ipurple.wechat.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import xyz.ipurple.wechat.base.core.WechatInfo;
+import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.send.msg.SendMsgDto;
 import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
@@ -15,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -106,7 +109,10 @@ public class WechatListener {
         if (ret != 0) {
             throw new RuntimeException("获取最新消息失败");
         }
-        Login.getMsgThreadLocal().put(syncEntity.getAddMsgList().get(0).getMsgId(), syncEntity.getAddMsgList().get(0));
+        List<MsgEntity> addMsgList = syncEntity.getAddMsgList();
+        if (!addMsgList.isEmpty()) {
+            Login.getMsgThreadLocal().put(addMsgList.get(0).getMsgId(), addMsgList.get(0));
+        }
         return syncEntity;
     }
 
@@ -122,13 +128,34 @@ public class WechatListener {
         //从消息列表中查找到撤回的消息
         MsgEntity oldMsg = Login.getMsgThreadLocal().get(Long.valueOf(revokeMsgid));
         //拼装消息
-        StringBuffer revokeMsgContent = new StringBuffer();
-        revokeMsgContent.append(Login.getContactThreadLocal().get(oldMsg.getFromUserName()).getNickName())
-                .append("||")
-                .append(replaceMsg)
-                .append("|| 消息内容为: </br>")
-                .append(oldMsg.getContent());
-
+        StringBuffer revokeMsgContent = new StringBuffer("");
+        if (Login.getContactThreadLocal().containsKey(oldMsg.getFromUserName())) {
+            ContactEntity contactEntity = Login.getContactThreadLocal().get(oldMsg.getFromUserName());
+            //哪个联系人或群组做的撤回
+            String nickName = contactEntity.getNickName();
+            //撤回的消息内容
+            String revokeMsg = oldMsg.getContent();
+            //备注名
+            String remarkName = contactEntity.getRemarkName();
+            if (oldMsg.getFromUserName().contains("@@")) {
+                //群聊中撤回消息用户username
+                String groupChatRevokeUserName = MatcheHelper.matches("(.*):<br/>", revokeMsg);
+                revokeMsg = MatcheHelper.matches("<br/>(.*)", revokeMsg);
+                if (Login.getContactThreadLocal().containsKey(groupChatRevokeUserName)) {
+                    contactEntity = Login.getContactThreadLocal().get(groupChatRevokeUserName);
+                    remarkName = contactEntity.getRemarkName();
+                }
+                //如果是群聊
+                revokeMsgContent.append("群聊: ");
+            }
+            //撤回用户名
+            String revokeUserName = StringUtils.isBlank(remarkName) ? replaceMsg : remarkName;
+            revokeMsgContent.append(nickName)
+                    .append(" || ")
+                    .append("撤回人: "+revokeUserName)
+                    .append(" || 撤回消息内容为: \r\n")
+                    .append(revokeMsg);
+        }
         WechatHelper.sendMsg(revokeMsgContent.toString(),oldMsg.getMsgType(), WeChatContactConstants.FILE_HELPER);
         //TODO 将过期信息删除，节省空间
 
