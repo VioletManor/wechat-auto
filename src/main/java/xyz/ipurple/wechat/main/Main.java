@@ -9,6 +9,5 @@ public class Main {
     public static void main(String[] args) {
         Thread t = new Thread(new Login());
         t.run();
-
     }
 }

@@ -67,10 +67,11 @@ public class Login implements Runnable {
         //获取联系人
         String contactJson = WechatHelper.getContact(wechatInfo);
         Iterator<JSONObject> memberListIt = JSON.parseObject(contactJson).getObject("MemberList", List.class).iterator();
-        System.out.println("sdfsdf");
+
         while (memberListIt.hasNext()) {
             ContactEntity next = JSON.parseObject(memberListIt.next().toString(), ContactEntity.class);
-            CONTACT.get().put(next.getUserName(), next);
+            ConcurrentHashMap<String, ContactEntity> contactHashMap = getContactThreadLocal();
+            contactHashMap.put(next.getUserName(), next);
         }
     }
 
@@ -84,5 +85,29 @@ public class Login implements Runnable {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
+    }
+
+    public static WechatInfo getWechatInfoThreadLocal() {
+        WechatInfo wechatInfo = WECHAT_INFO_THREAD_LOCAL.get();
+        if (null == wechatInfo) {
+            WECHAT_INFO_THREAD_LOCAL.set(wechatInfo = new WechatInfo());
+        }
+        return wechatInfo;
+    }
+
+    public static ConcurrentHashMap<String, ContactEntity> getContactThreadLocal() {
+        ConcurrentHashMap<String, ContactEntity> contactHashMap = CONTACT.get();
+        if (null == contactHashMap) {
+            CONTACT.set(contactHashMap = new ConcurrentHashMap<>());
+        }
+        return contactHashMap;
+    }
+
+    public static ConcurrentHashMap<Long, MsgEntity> getMsgThreadLocal() {
+        ConcurrentHashMap<Long, MsgEntity> msgHashMap = MSG.get();
+        if (null == msgHashMap) {
+            MSG.set(msgHashMap = new ConcurrentHashMap<>());
+        }
+        return msgHashMap;
     }
 }

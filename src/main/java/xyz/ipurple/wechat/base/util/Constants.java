@@ -43,5 +43,9 @@ public class Constants {
      * 状态更新
      */
     public static final String STATUS_NOTIFY_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxstatusnotify";
+    /**
+     * 发送消息
+     */
+    public static final String SEND_MSG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg";
 
 }
