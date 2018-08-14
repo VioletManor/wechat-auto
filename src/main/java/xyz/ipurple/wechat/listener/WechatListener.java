@@ -149,10 +149,10 @@ public class WechatListener {
                 revokeMsgContent.append("群聊: ");
             }
             //撤回用户名
-            String revokeUserName = StringUtils.isBlank(remarkName) ? replaceMsg : remarkName;
+            String revokeUserName = MatcheHelper.matches("\\<\\!\\[CDATA\\[(?<text>[^\\]]*)\\]\\]\\>", content);
             revokeMsgContent.append(nickName)
                     .append(" || ")
-                    .append("撤回人: "+revokeUserName)
+                    .append("撤回人: " + revokeUserName)
                     .append(" || 撤回消息内容为: \r\n")
                     .append(revokeMsg);
         }
