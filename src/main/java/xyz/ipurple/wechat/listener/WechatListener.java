@@ -37,6 +37,7 @@ public class WechatListener {
                 logger.info("正在监听:");
 //                wechatInfo.setDeviceId("e" + System.currentTimeMillis());
                 String selector = syncCheck(wechatInfo);
+                //TODO 对语音和图片消息做处理
                 if (selector.equals("2")) {
                     SyncEntity syncEntity = getTextMsg(wechatInfo);
                     Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
@@ -47,7 +48,6 @@ public class WechatListener {
                             logger.info("有撤回消息：" + next.toString());
                             getRevokeMsg(next);
                         }
-//                        System.out.println(next.getContent());
                         logger.info(next.getContent());
                     }
                     continue;
@@ -155,8 +155,8 @@ public class WechatListener {
                     .append("撤回人: " + revokeUserName)
                     .append(" || 撤回消息内容为: \r\n")
                     .append(revokeMsg);
+            WechatHelper.sendMsg(revokeMsgContent.toString(),oldMsg.getMsgType(), WeChatContactConstants.FILE_HELPER);
         }
-        WechatHelper.sendMsg(revokeMsgContent.toString(),oldMsg.getMsgType(), WeChatContactConstants.FILE_HELPER);
         //TODO 将过期信息删除，节省空间
 
     }
