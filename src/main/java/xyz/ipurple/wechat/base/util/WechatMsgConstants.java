@@ -11,19 +11,19 @@ public class WechatMsgConstants {
     /**
      * 文本消息
      */
-    private static final int TEXT_MSG = 2;
+    public static final int TEXT_MSG = 2;
     /**
      * 图片文件
      */
-    private static final int IMAGE_FILE_MSG = 3;
+    public static final int IMAGE_FILE_MSG = 3;
     /**
      * 图片表情消息
      */
-    private static final int IMAGE_EXPRESSION_MSG = 47;
+    public static final int IMAGE_EXPRESSION_MSG = 47;
     /**
      * 语音消息
      */
-    private static final int VOICE_MSG = 34;
+    public static final int VOICE_MSG = 34;
     /**
      * 短视频
      */
@@ -35,10 +35,11 @@ public class WechatMsgConstants {
     /**
      * 文件
      */
-    private static final int FILE_MSG = 49;
+    public static final int FILE_MSG = 49;
 
     /**
-     *
+     * 撤回的消息
      */
+    public static final int REVOKE_MSG = 10002;
 
 }

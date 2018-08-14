@@ -221,6 +221,20 @@ public class WechatHelper {
         }
     }
 
+    public static String getMsgImg(Long msgId) {
+        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        StringBuffer url = new StringBuffer(Constants.GET_MSG_IMG_URL)
+                        .append("?MsgID=")
+                        .append(msgId)
+                        .append("&skey=")
+                        .append(wechatInfo.getSkey())
+                        .append("&type=slave");
+        String path = Constants.QRCODE_TEMP_DIR;
+        String fileName = msgId + ".jpg";
+        HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).doPostFile(Constants.QRCODE_TEMP_DIR, msgId + ".jpg");
+        return path + File.separator + fileName;
+    }
+
     public static String createSyncKey(JSONObject syncKey) {
         StringBuffer sb = new StringBuffer();
         Iterator<JSONObject> syncKeyIt = ((List<JSONObject>) syncKey.get("List")).iterator();

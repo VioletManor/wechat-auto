@@ -47,5 +47,9 @@ public class Constants {
      * 发送消息
      */
     public static final String SEND_MSG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg";
+    /**
+     * 获取图片文件
+     */
+    public static final String GET_MSG_IMG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg";
 
 }
