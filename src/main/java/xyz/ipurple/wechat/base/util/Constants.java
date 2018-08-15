@@ -48,6 +48,14 @@ public class Constants {
      */
     public static final String SEND_MSG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg";
     /**
+     * 发送图片消息
+     */
+    public static final String SEND_MSG_IMG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsgimg";
+    /**
+     * 发送图片表情
+     */
+    public static final String SEND_EMOTICON_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendemoticon";
+    /**
      * 获取图片文件
      */
     public static final String GET_MSG_IMG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg";

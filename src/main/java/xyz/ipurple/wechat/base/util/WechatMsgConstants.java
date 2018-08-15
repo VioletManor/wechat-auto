@@ -11,19 +11,19 @@ public class WechatMsgConstants {
     /**
      * 文本消息
      */
-    public static final int TEXT_MSG = 2;
+    public static final int TEXT_MSG = 1;
     /**
      * 图片文件
      */
     public static final int IMAGE_FILE_MSG = 3;
     /**
-     * 图片表情消息
-     */
-    public static final int IMAGE_EXPRESSION_MSG = 47;
-    /**
      * 语音消息
      */
     public static final int VOICE_MSG = 34;
+    /**
+     * 图片表情消息
+     */
+    public static final int IMAGE_EXPRESSION_MSG = 47;
     /**
      * 短视频
      */

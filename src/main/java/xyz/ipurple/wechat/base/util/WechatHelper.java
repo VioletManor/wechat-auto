@@ -189,12 +189,11 @@ public class WechatHelper {
     }
 
     /**
-     * 发送消息
+     * 发送文本消息
      * @param content 发送内容
-     * @param msgType 消息类型
      * @param toUserName 接收人username
      */
-    public static void sendMsg(String content, int msgType, String toUserName) {
+    public static void sendTextMsg(String content, String toUserName) {
         WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
         String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
 
@@ -203,7 +202,7 @@ public class WechatHelper {
         msg.put("LocalID", clientLocalId);
         msg.put("Content", content);
         msg.put("FromUserName", wechatInfo.getUser().getUserName());
-        msg.put("Type", msgType);
+        msg.put("Type", WechatMsgConstants.TEXT_MSG);
         msg.put("ToUserName", toUserName);
 
         JSONObject payLoad = new JSONObject();
@@ -221,6 +220,76 @@ public class WechatHelper {
         }
     }
 
+    /**
+     * 发送图片文件消息
+     * @param content 发送内容
+     * @param toUserName 接收人username
+     */
+    public static void sendImageFileMsg(String content, String toUserName) {
+        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
+
+        JSONObject msg = new JSONObject();
+        msg.put("ClientMsgId", clientLocalId);
+        msg.put("LocalID", clientLocalId);
+        msg.put("Content", content);
+        msg.put("FromUserName", wechatInfo.getUser().getUserName());
+        msg.put("ToUserName", toUserName);
+        msg.put("MediaId", "");
+        msg.put("Type", WechatMsgConstants.IMAGE_FILE_MSG);
+
+        JSONObject payLoad = new JSONObject();
+        payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
+        payLoad.put("Msg", msg);
+        payLoad.put("Scene", 2);
+
+        String url = Constants.SEND_MSG_IMG_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=async&f=json";
+        HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
+        JSONObject response = JSONObject.parseObject(httpResponse.getContent());
+        if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
+            logger.error("发送撤回图片文件失败");
+        } else {
+            logger.info("发送撤回图片文件成功");
+        }
+    }
+
+    /**
+     * 发送图片表情
+     * @param emoticonMd5 表情MD5值
+     * @param toUserName 接收人username
+     */
+    public static void sendEmoticonMsg(String emoticonMd5, String toUserName) {
+        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
+
+        JSONObject msg = new JSONObject();
+        msg.put("ClientMsgId", clientLocalId);
+        msg.put("LocalID", clientLocalId);
+        msg.put("EMoticonMd5", emoticonMd5);
+        msg.put("FromUserName", wechatInfo.getUser().getUserName());
+        msg.put("ToUserName", toUserName);
+        msg.put("Type", WechatMsgConstants.IMAGE_EXPRESSION_MSG);
+
+        JSONObject payLoad = new JSONObject();
+        payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
+        payLoad.put("Msg", msg);
+        payLoad.put("Scene", 2);
+
+        String url = Constants.SEND_EMOTICON_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=sys&lang=zh_CN";
+        HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
+        JSONObject response = JSONObject.parseObject(httpResponse.getContent());
+        if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
+            logger.error("发送撤回图片表情失败");
+        } else {
+            logger.info("发送撤回图片表情成功");
+        }
+    }
+
+    /**
+     * 获取图片
+     * @param msgId
+     * @return 文件存放路径
+     */
     public static String getMsgImg(Long msgId) {
         WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
         StringBuffer url = new StringBuffer(Constants.GET_MSG_IMG_URL)

@@ -3,6 +3,7 @@ package xyz.ipurple.wechat.handler;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
+import xyz.ipurple.wechat.base.core.revoke.RevokeMsgInfo;
 import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
 import xyz.ipurple.wechat.base.util.MatcheHelper;
@@ -24,78 +25,79 @@ public class WechatMsgHandler {
     private static final Logger logger = Logger.getLogger(WechatMsgHandler.class);
 
     /**
-     * 文本消息处理
-     * @param syncEntity
+     * 撤回消息处理
+     * @param msgEntity msgEntity
      */
-    public static void textMsgHandler(SyncEntity syncEntity) {
-        Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
-        while (msgIt.hasNext()) {
-            MsgEntity next = msgIt.next();
-            if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
-                //获取撤回的消息，并发送给文件助手
-                logger.info("有撤回消息：" + next.getContent());
-                getRevokeMsg(next);
+    public static void revokeMsgHandler(MsgEntity msgEntity) {
+        RevokeMsgInfo revokeMsgInfo = getRevokeMsgInfo(msgEntity);
+        int msgType = revokeMsgInfo.getMsgType();
+        if (revokeMsgInfo != null) {
+            if (msgType == WechatMsgConstants.TEXT_MSG) {                    //普通文本消息
+                StringBuffer revokeMsgContent = getPreContentForRevokeMsg(revokeMsgInfo).append(revokeMsgInfo.getContent());
+                WechatHelper.sendTextMsg(revokeMsgContent.toString(), WeChatContactConstants.FILE_HELPER);
+            } else if (msgType == WechatMsgConstants.IMAGE_FILE_MSG) {       //图片文件消息
+                StringBuffer revokeMsgContent = getPreContentForRevokeMsg(revokeMsgInfo).append("\r\n撤回了一个图片文件:");
+                WechatHelper.sendTextMsg(revokeMsgContent.toString(), WeChatContactConstants.FILE_HELPER);
+                WechatHelper.sendImageFileMsg(revokeMsgInfo.getContent(), WeChatContactConstants.FILE_HELPER);
+            } else if (msgType == WechatMsgConstants.IMAGE_EXPRESSION_MSG) { //图片表情消息
+                StringBuffer revokeMsgContent = getPreContentForRevokeMsg(revokeMsgInfo).append("\r\n撤回了一个图片表情:");
+                WechatHelper.sendTextMsg(revokeMsgContent.toString(), WeChatContactConstants.FILE_HELPER);
+                WechatHelper.sendEmoticonMsg(revokeMsgInfo.getContent(), WeChatContactConstants.FILE_HELPER);
+            } else if (msgType == WechatMsgConstants.VOICE_MSG) {               //语音消息
+//                StringBuffer revokeMsgContent = getPreContentForRevokeMsg(revokeMsgInfo).append("\r\n撤回了一条语音消息:");
+//                WechatHelper.sendTextMsg(revokeMsgContent.toString(), WeChatContactConstants.FILE_HELPER);
+//                WechatHelper.sendImageFileMsg(revokeMsgInfo.getContent(), WeChatContactConstants.FILE_HELPER);
             }
         }
     }
 
-    /**
-     * 图片文件处理
-     * @param syncEntity
-     */
-    public static void imgFileMsgHandler(SyncEntity syncEntity) {
-        Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
-        while (msgIt.hasNext()) {
-            MsgEntity next = msgIt.next();
-            if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
-                //获取撤回的消息，并发送给文件助手
-                logger.info("有图片文件消息撤回：" + next.getContent());
-                getRevokeMsg(next);
-            }
-        }
-    }
-
-    /**
-     * 获取到撤回的消息并发送给当前用户的文件助手
-     * @param msgEntity
-     */
-    public static void getRevokeMsg(MsgEntity msgEntity) {
+    //获取撤回人信息
+    public static RevokeMsgInfo getRevokeMsgInfo(MsgEntity msgEntity) {
         String content = StringEscapeUtils.unescapeXml(msgEntity.getContent());
         //匹配撤回的消息id
         String revokeMsgid = MatcheHelper.matches("<msgid>(.*)</msgid>", content);
         String replaceMsg = MatcheHelper.matches("<replacemsg>(.*)</replacemsg>", content);
         //从消息列表中查找到撤回的消息
         MsgEntity oldMsg = Login.getMsgThreadLocal().get(Long.valueOf(revokeMsgid));
-        //拼装消息
-        StringBuffer revokeMsgContent = new StringBuffer("");
-        if (Login.getContactThreadLocal().containsKey(oldMsg.getFromUserName())) {
+        //获取撤回消息相关信息
+        if (oldMsg != null && Login.getContactThreadLocal().containsKey(oldMsg.getFromUserName())) {
+            RevokeMsgInfo revokeMsgInfo = new RevokeMsgInfo();
+            //获取联系人信息
             ContactEntity contactEntity = Login.getContactThreadLocal().get(oldMsg.getFromUserName());
             //哪个联系人或群组做的撤回
             String nickName = contactEntity.getNickName();
             //撤回的消息内容
             String revokeMsg = oldMsg.getContent();
-            //备注名
-            String remarkName = contactEntity.getRemarkName();
+            //如果是图片表情 截取md5值
+            if (oldMsg.getMsgType() == WechatMsgConstants.IMAGE_EXPRESSION_MSG) {
+                revokeMsg = MatcheHelper.matches("md5=\"(.*?)\"", revokeMsg);
+            }
             if (oldMsg.getFromUserName().contains("@@")) {
-                //群聊中撤回消息用户username
-                String groupChatRevokeUserName = MatcheHelper.matches("(.*):<br/>", revokeMsg);
-                revokeMsg = MatcheHelper.matches("<br/>(.*)", revokeMsg);
-                if (Login.getContactThreadLocal().containsKey(groupChatRevokeUserName)) {
-                    contactEntity = Login.getContactThreadLocal().get(groupChatRevokeUserName);
-                    remarkName = contactEntity.getRemarkName();
-                }
-                //如果是群聊
-                revokeMsgContent.append("群聊: ");
+                revokeMsgInfo.setChatGroupFlag(1);
             }
             //撤回用户名
             String revokeUserName = MatcheHelper.matches("\\<\\!\\[CDATA\\[(?<text>[^\\]]*)\\]\\]\\>", content);
-            revokeMsgContent.append(nickName)
-                    .append("\r\n撤回人: " + revokeUserName)
-                    .append("\r\n撤回消息内容为: \r\n")
-                    .append(revokeMsg);
-            WechatHelper.sendMsg(revokeMsgContent.toString(),oldMsg.getMsgType(), WeChatContactConstants.FILE_HELPER);
-        }
-        //TODO 将过期信息删除，节省空间
 
+            revokeMsgInfo.setNickName(nickName);
+            revokeMsgInfo.setRevokeUserName(revokeUserName);
+            revokeMsgInfo.setContent(revokeMsg);
+            revokeMsgInfo.setMsgType(oldMsg.getMsgType());
+            return revokeMsgInfo;
+        }
+        return null;
+    }
+
+    /**
+     * 获取要发送的撤回消息前缀内容
+     * @param revokeMsgInfo
+     * @return
+     */
+    private static StringBuffer getPreContentForRevokeMsg(RevokeMsgInfo revokeMsgInfo) {
+        StringBuffer revokeMsgContent = new StringBuffer();
+        revokeMsgContent.append("昵称: ")
+                .append(revokeMsgInfo.getNickName())
+                .append("\r\n撤回人: " + revokeMsgInfo.getRevokeUserName())
+                .append("\r\n撤回消息内容为: \r\n");
+        return revokeMsgContent;
     }
 }

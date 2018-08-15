@@ -38,15 +38,35 @@ public class WechatListener {
                 logger.info("正在监听:");
                 String selector = syncCheck(wechatInfo);
                 //TODO 对语音和图片消息做处理
-                if (selector.equals(WechatMsgConstants.TEXT_MSG+"")) {  //文本消息
+                if (selector.equals("2")) {  //有消息
                     SyncEntity syncEntity = getTextMsg(wechatInfo);
-                    WechatMsgHandler.textMsgHandler(syncEntity);
-                    continue;
-                } else if (selector.equals(WechatMsgConstants.IMAGE_FILE_MSG+"")) { //图片文件消息
-                    SyncEntity syncEntity = getTextMsg(wechatInfo);
-                    //String msgImgPath = WechatHelper.getMsgImg(syncEntity.getAddMsgList().get(0).getMsgId());
-                    WechatMsgHandler.imgFileMsgHandler(syncEntity);
-                    continue;
+                    Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
+                    if (msgIt.hasNext()) {
+                        MsgEntity next = msgIt.next();
+                        if (next.getMsgType() == WechatMsgConstants.TEXT_MSG) {
+                            //文本消息 包括emoji表情
+                            logger.info("收到普通消息： " + next.getContent());
+                            continue;
+                        } else if (next.getMsgType() == WechatMsgConstants.IMAGE_FILE_MSG) {
+                            //图片文件
+                            logger.info("收到图片：" + next.getContent());
+                            continue;
+                        } else if (next.getMsgType() == WechatMsgConstants.IMAGE_EXPRESSION_MSG) {
+                            //图片表情（收藏的表情之类的）
+                            logger.info("收到图片表情：" + next.getContent());
+                            continue;
+                        } else if (next.getMsgType() == WechatMsgConstants.VOICE_MSG) {
+                            //语音消息
+                            logger.info("收到语音消息：" + next.getContent());
+                            continue;
+                        } else {
+                            if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
+                                //撤回消息处理
+                                WechatMsgHandler.revokeMsgHandler(next);
+                                continue;
+                            }
+                        }
+                    }
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
