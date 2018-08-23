@@ -1,4 +1,4 @@
-package xyz.ipurple.wechat.base.util;
+package xyz.ipurple.wechat.base.constants;
 
 /**
  * @ClassName: WechatMsgConstants

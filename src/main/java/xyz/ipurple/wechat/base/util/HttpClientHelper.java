@@ -164,24 +164,14 @@ public class HttpClientHelper {
 
     private static void getCookie(CookieStore cookieStore, HttpResponse httpResponse) {
         StringBuffer cookie = new StringBuffer();
-        String jsessionId = null;
-        String cookieUser = null;
         List<Cookie> cookies = cookieStore.getCookies();
         for (int i = 0; i < cookies.size(); i++) {
             cookie.append(cookies.get(i).getName())
                     .append("=")
                     .append(cookies.get(i).getValue())
                     .append(";");
-            if (cookies.get(i).getName().equals("JSESSIONID")) {
-                jsessionId = cookies.get(i).getValue();
-            }
-            if (cookies.get(i).getName().equals("cookie_user")) {
-                cookieUser = cookies.get(i).getValue();
-            }
         }
         httpResponse.setCookie(cookie.toString());
-        httpResponse.setjSessionId(jsessionId);
-        httpResponse.setCookieUser(cookieUser);
     }
 
     public String getCookie() {

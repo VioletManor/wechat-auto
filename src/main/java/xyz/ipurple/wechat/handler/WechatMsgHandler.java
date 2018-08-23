@@ -2,18 +2,14 @@ package xyz.ipurple.wechat.handler;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import xyz.ipurple.wechat.base.constants.WeChatContactConstants;
+import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.revoke.RevokeMsgInfo;
-import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
 import xyz.ipurple.wechat.base.util.MatcheHelper;
-import xyz.ipurple.wechat.base.util.WeChatContactConstants;
 import xyz.ipurple.wechat.base.util.WechatHelper;
-import xyz.ipurple.wechat.base.util.WechatMsgConstants;
-import xyz.ipurple.wechat.listener.WechatListener;
-import xyz.ipurple.wechat.login.core.Login;
-
-import java.util.Iterator;
+import xyz.ipurple.wechat.login.UserContext;
 
 /**
  * @author: zcy
@@ -58,12 +54,12 @@ public class WechatMsgHandler {
         String revokeMsgid = MatcheHelper.matches("<msgid>(.*)</msgid>", content);
         String replaceMsg = MatcheHelper.matches("<replacemsg>(.*)</replacemsg>", content);
         //从消息列表中查找到撤回的消息
-        MsgEntity oldMsg = Login.getMsgThreadLocal().get(Long.valueOf(revokeMsgid));
+        MsgEntity oldMsg = UserContext.getMsgThreadLocal().get(Long.valueOf(revokeMsgid));
         //获取撤回消息相关信息
-        if (oldMsg != null && Login.getContactThreadLocal().containsKey(oldMsg.getFromUserName())) {
+        if (oldMsg != null && UserContext.getContactThreadLocal().containsKey(oldMsg.getFromUserName())) {
             RevokeMsgInfo revokeMsgInfo = new RevokeMsgInfo();
             //获取联系人信息
-            ContactEntity contactEntity = Login.getContactThreadLocal().get(oldMsg.getFromUserName());
+            ContactEntity contactEntity = UserContext.getContactThreadLocal().get(oldMsg.getFromUserName());
             //哪个联系人或群组做的撤回
             String nickName = contactEntity.getNickName();
             //撤回的消息内容

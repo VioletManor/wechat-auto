@@ -1,8 +1,7 @@
 package xyz.ipurple.wechat.main;
 
-import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.listener.WechatListener;
-import xyz.ipurple.wechat.login.core.Login;
+import xyz.ipurple.wechat.login.Login;
 
 public class Main {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(WechatListener.class);
