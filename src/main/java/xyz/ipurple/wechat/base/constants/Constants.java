@@ -1,8 +1,8 @@
-package xyz.ipurple.wechat.base.util;
+package xyz.ipurple.wechat.base.constants;
 
 /**
  * @ClassName: Constants
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/6 9:47
  * @Version: 1.0
@@ -59,5 +59,4 @@ public class Constants {
      * 获取图片文件
      */
     public static final String GET_MSG_IMG_URL = "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxgetmsgimg";
-
 }

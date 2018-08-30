@@ -1,7 +1,6 @@
 package xyz.ipurple.wechat.base.util;
 
 import org.apache.log4j.Logger;
-import xyz.ipurple.wechat.listener.WechatListener;
 
 import java.io.*;
 

@@ -10,13 +10,13 @@ import java.util.List;
  */
 public class ContactEntity {
     private String Alias;
-    private int AppAccountFlag;
+    private Long AppAccountFlag;
     /**
      * contactFlag为3且这个有值
      * 可能是联系人
      */
     private Long AttrStatus;
-    private int ChatRoomId;
+    private Long ChatRoomId;
     /**
      * 市
      */
@@ -25,7 +25,7 @@ public class ContactEntity {
      * 联系人标记
      * 0：群聊； 1: 微信官方; 3:订阅号、联系人、群聊
      */
-    private int ContactFlag;
+    private Long ContactFlag;
     private String DisplayName;
     private String EncryChatRoomId;
     private String HeadImgUrl;
@@ -35,7 +35,7 @@ public class ContactEntity {
     private int MemberCount;
     private List<MemberEntity> MemberList;
     private String NickName;
-    private int OwnerUin;
+    private Long OwnerUin;
     /**
      * 名称缩写
      * 例：WJCSZS
@@ -58,11 +58,11 @@ public class ContactEntity {
      */
     private int Sex;
     private String Signature;
-    private int SnsFlag;
-    private int StarFriend;
-    private int Statues;
-    private int Uin;
-    private int UniFriend;
+    private Long SnsFlag;
+    private Long StarFriend;
+    private Long Statues;
+    private Long Uin;
+    private Long UniFriend;
     /**
      * 用户名
      */
@@ -77,11 +77,11 @@ public class ContactEntity {
         Alias = alias;
     }
 
-    public int getAppAccountFlag() {
+    public Long getAppAccountFlag() {
         return AppAccountFlag;
     }
 
-    public void setAppAccountFlag(int appAccountFlag) {
+    public void setAppAccountFlag(Long appAccountFlag) {
         AppAccountFlag = appAccountFlag;
     }
 
@@ -93,11 +93,11 @@ public class ContactEntity {
         AttrStatus = attrStatus;
     }
 
-    public int getChatRoomId() {
+    public Long getChatRoomId() {
         return ChatRoomId;
     }
 
-    public void setChatRoomId(int chatRoomId) {
+    public void setChatRoomId(Long chatRoomId) {
         ChatRoomId = chatRoomId;
     }
 
@@ -109,11 +109,11 @@ public class ContactEntity {
         City = city;
     }
 
-    public int getContactFlag() {
+    public Long getContactFlag() {
         return ContactFlag;
     }
 
-    public void setContactFlag(int contactFlag) {
+    public void setContactFlag(Long contactFlag) {
         ContactFlag = contactFlag;
     }
 
@@ -189,11 +189,11 @@ public class ContactEntity {
         NickName = nickName;
     }
 
-    public int getOwnerUin() {
+    public Long getOwnerUin() {
         return OwnerUin;
     }
 
-    public void setOwnerUin(int ownerUin) {
+    public void setOwnerUin(Long ownerUin) {
         OwnerUin = ownerUin;
     }
 
@@ -261,43 +261,43 @@ public class ContactEntity {
         Signature = signature;
     }
 
-    public int getSnsFlag() {
+    public Long getSnsFlag() {
         return SnsFlag;
     }
 
-    public void setSnsFlag(int snsFlag) {
+    public void setSnsFlag(Long snsFlag) {
         SnsFlag = snsFlag;
     }
 
-    public int getStarFriend() {
+    public Long getStarFriend() {
         return StarFriend;
     }
 
-    public void setStarFriend(int starFriend) {
+    public void setStarFriend(Long starFriend) {
         StarFriend = starFriend;
     }
 
-    public int getStatues() {
+    public Long getStatues() {
         return Statues;
     }
 
-    public void setStatues(int statues) {
+    public void setStatues(Long statues) {
         Statues = statues;
     }
 
-    public int getUin() {
+    public Long getUin() {
         return Uin;
     }
 
-    public void setUin(int uin) {
+    public void setUin(Long uin) {
         Uin = uin;
     }
 
-    public int getUniFriend() {
+    public Long getUniFriend() {
         return UniFriend;
     }
 
-    public void setUniFriend(int uniFriend) {
+    public void setUniFriend(Long uniFriend) {
         UniFriend = uniFriend;
     }
 

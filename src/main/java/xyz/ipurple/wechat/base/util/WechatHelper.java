@@ -6,11 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
+import xyz.ipurple.wechat.base.constants.Constants;
+import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.init.WechatInitEntity;
-import xyz.ipurple.wechat.base.core.send.msg.SendMsgDto;
-import xyz.ipurple.wechat.login.core.Login;
+import xyz.ipurple.wechat.login.UserContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: WechatHelper
@@ -29,7 +31,6 @@ import java.util.List;
 public class WechatHelper {
     private static final Logger logger = Logger.getLogger(WechatHelper.class);
 
-    //    private static final ThreadLocal<QRCodeWindow> QR_CODE_WINDOW = new ThreadLocal<QRCodeWindow>();
     private static QRCodeWindow QR_CODE_WINDOW = null;
 
     /**
@@ -85,6 +86,10 @@ public class WechatHelper {
         QR_CODE_WINDOW.dispose();
     }
 
+    public static void deleteQrCode(String qrCodePath) {
+        new File(qrCodePath).deleteOnExit();
+    }
+
     public static String waitLogin(int tip, String uuid) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("loginicon", "true"));
@@ -103,7 +108,6 @@ public class WechatHelper {
     public static WechatInfo redirect(String res) {
         String redirectUri = MatcheHelper.matches("window.redirect_uri=\"(.*)\"", res);
         HttpResponse httpResponse = HttpClientHelper.build(redirectUri + "&fun=new").doPost();
-//        HttpResponse httpResponse = HttpClientHelper.doPost(redirectUri + "&fun=new", null);
         String content = httpResponse.getContent();
 
         String skey = MatcheHelper.matches("<skey>(.*)</skey>", content);
@@ -185,6 +189,12 @@ public class WechatHelper {
         if (!ret.equals("0")) {
             logger.error("获取联系人失败");
         }
+        Iterator<JSONObject> memberListIt = contact.getObject("MemberList", List.class).iterator();
+        while (memberListIt.hasNext()) {
+            ContactEntity next = JSON.parseObject(memberListIt.next().toString(), ContactEntity.class);
+            Map<String, ContactEntity> contactHashMap = UserContext.getContactThreadLocal();
+            contactHashMap.put(next.getUserName(), next);
+        }
         return httpResponse.getContent();
     }
 
@@ -194,7 +204,7 @@ public class WechatHelper {
      * @param toUserName 接收人username
      */
     public static void sendTextMsg(String content, String toUserName) {
-        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
         String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
 
         JSONObject msg = new JSONObject();
@@ -226,7 +236,7 @@ public class WechatHelper {
      * @param toUserName 接收人username
      */
     public static void sendImageFileMsg(String content, String toUserName) {
-        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
         String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
 
         JSONObject msg = new JSONObject();
@@ -259,7 +269,7 @@ public class WechatHelper {
      * @param toUserName 接收人username
      */
     public static void sendEmoticonMsg(String emoticonMd5, String toUserName) {
-        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
         String clientLocalId = System.currentTimeMillis()+ "" + (int)((Math.random() * 9 + 1) * 1000);
 
         JSONObject msg = new JSONObject();
@@ -291,7 +301,7 @@ public class WechatHelper {
      * @return 文件存放路径
      */
     public static String getMsgImg(Long msgId) {
-        WechatInfo wechatInfo = Login.getWechatInfoThreadLocal();
+        WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
         StringBuffer url = new StringBuffer(Constants.GET_MSG_IMG_URL)
                         .append("?MsgID=")
                         .append(msgId)

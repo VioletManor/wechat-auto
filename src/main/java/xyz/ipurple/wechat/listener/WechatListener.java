@@ -2,28 +2,27 @@ package xyz.ipurple.wechat.listener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import xyz.ipurple.wechat.base.constants.Constants;
+import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
-import xyz.ipurple.wechat.base.core.init.ContactEntity;
-import xyz.ipurple.wechat.base.core.send.msg.SendMsgDto;
 import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
-import xyz.ipurple.wechat.base.util.*;
+import xyz.ipurple.wechat.base.util.HttpClientHelper;
+import xyz.ipurple.wechat.base.util.HttpResponse;
+import xyz.ipurple.wechat.base.util.WechatHelper;
 import xyz.ipurple.wechat.handler.WechatMsgHandler;
-import xyz.ipurple.wechat.login.core.Login;
+import xyz.ipurple.wechat.login.UserContext;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: WechatListener
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/8 12:43
  * @Version: 1.0
@@ -32,7 +31,7 @@ public class WechatListener {
     private static final Logger logger = Logger.getLogger(WechatListener.class);
 
     public void listen() {
-        WechatInfo wechatInfo = Login.WECHAT_INFO_THREAD_LOCAL.get();
+        WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
         while (true) {
             try {
                 logger.info("正在监听:");
@@ -59,6 +58,10 @@ public class WechatListener {
                             //语音消息
                             logger.info("收到语音消息：" + next.getContent());
                             continue;
+                        } else if (next.getMsgType() == WechatMsgConstants.FILE_MSG) {
+                            //文件消息
+                            logger.info("收到文件：" + next.getContent());
+                            continue;
                         } else {
                             if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
                                 //撤回消息处理
@@ -69,7 +72,9 @@ public class WechatListener {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                logger.error("UnsupportedEncodingException", e);
+            } catch (NullPointerException e) {
+                logger.error("NullPointerException", e);
             }
         }
     }
@@ -127,7 +132,7 @@ public class WechatListener {
         }
         List<MsgEntity> addMsgList = syncEntity.getAddMsgList();
         if (!addMsgList.isEmpty()) {
-            Login.getMsgThreadLocal().put(addMsgList.get(0).getMsgId(), addMsgList.get(0));
+            UserContext.getMsgThreadLocal().put(addMsgList.get(0).getMsgId(), addMsgList.get(0));
         }
         return syncEntity;
     }

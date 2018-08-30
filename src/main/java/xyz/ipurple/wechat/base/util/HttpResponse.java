@@ -9,8 +9,6 @@ package xyz.ipurple.wechat.base.util;
 public class HttpResponse {
     private String cookie;
     private String content;
-    private String jSessionId;
-    private String cookieUser;
 
     public String getCookie() {
         return cookie;
@@ -26,21 +24,5 @@ public class HttpResponse {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getjSessionId() {
-        return jSessionId;
-    }
-
-    public void setjSessionId(String jSessionId) {
-        this.jSessionId = jSessionId;
-    }
-
-    public String getCookieUser() {
-        return cookieUser;
-    }
-
-    public void setCookieUser(String cookieUser) {
-        this.cookieUser = cookieUser;
     }
 }
