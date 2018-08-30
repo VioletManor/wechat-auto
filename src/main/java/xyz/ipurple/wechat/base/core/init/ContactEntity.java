@@ -61,8 +61,8 @@ public class ContactEntity {
     private int SnsFlag;
     private int StarFriend;
     private int Statues;
-    private int Uin;
-    private int UniFriend;
+    private Long Uin;
+    private Long UniFriend;
     /**
      * 用户名
      */
@@ -285,19 +285,19 @@ public class ContactEntity {
         Statues = statues;
     }
 
-    public int getUin() {
+    public Long getUin() {
         return Uin;
     }
 
-    public void setUin(int uin) {
+    public void setUin(Long uin) {
         Uin = uin;
     }
 
-    public int getUniFriend() {
+    public Long getUniFriend() {
         return UniFriend;
     }
 
-    public void setUniFriend(int uniFriend) {
+    public void setUniFriend(Long uniFriend) {
         UniFriend = uniFriend;
     }
 

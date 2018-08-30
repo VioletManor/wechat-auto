@@ -22,7 +22,7 @@ public class UserEntity {
     private String Signature;
     private int SnsFlag;
     private int StarFriend;
-    private int Uin;
+    private Long Uin;
     private String UserName;
     private int VerifyFlag;
     private int WebWxPluginSwitch;
@@ -147,11 +147,11 @@ public class UserEntity {
         StarFriend = starFriend;
     }
 
-    public int getUin() {
+    public Long getUin() {
         return Uin;
     }
 
-    public void setUin(int uin) {
+    public void setUin(Long uin) {
         Uin = uin;
     }
 

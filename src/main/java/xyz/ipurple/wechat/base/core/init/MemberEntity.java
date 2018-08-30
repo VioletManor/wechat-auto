@@ -16,7 +16,7 @@ public class MemberEntity {
     private String PYQuanPin;
     private String RemarkPYInitial;
     private String RemarkPYQuanPin;
-    private int Uin;
+    private Long Uin;
     private String UserName;
 
     public int getAttrStatus() {
@@ -91,11 +91,11 @@ public class MemberEntity {
         RemarkPYQuanPin = remarkPYQuanPin;
     }
 
-    public int getUin() {
+    public Long getUin() {
         return Uin;
     }
 
-    public void setUin(int uin) {
+    public void setUin(Long uin) {
         Uin = uin;
     }
 
