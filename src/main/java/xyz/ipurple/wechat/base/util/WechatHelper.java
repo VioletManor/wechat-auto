@@ -31,7 +31,7 @@ import java.util.Map;
 public class WechatHelper {
     private static final Logger logger = Logger.getLogger(WechatHelper.class);
 
-    private static final ThreadLocal<QRCodeWindow> QR_CODE_WINDOW = new ThreadLocal<QRCodeWindow>();
+    private static QRCodeWindow QR_CODE_WINDOW = null;
 
     /**
      * 获取二维码登陆uuid
@@ -74,7 +74,7 @@ public class WechatHelper {
                 try {
                     UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
                     QRCodeWindow qrCodeWindow = new QRCodeWindow(path);
-                    QR_CODE_WINDOW.set(qrCodeWindow);
+                    QR_CODE_WINDOW = qrCodeWindow;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -83,7 +83,7 @@ public class WechatHelper {
     }
 
     public static void closeQrCode() {
-        QR_CODE_WINDOW.get().dispose();
+        QR_CODE_WINDOW.dispose();
     }
 
     public static void deleteQrCode(String qrCodePath) {

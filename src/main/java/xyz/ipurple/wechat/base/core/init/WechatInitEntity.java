@@ -13,16 +13,16 @@ import java.util.List;
 public class WechatInitEntity {
     private BaseResponse BaseResponse;
     private String ChatSet;
-    private int ClickReportInterval;
-    private int ClientVersion;
+    private Long ClickReportInterval;
+    private Long ClientVersion;
     private List<ContactEntity> ContactList;
-    private int Count;
-    private int GrayScale;
-    private int InviteStartCount;
+    private Long Count;
+    private Long GrayScale;
+    private Long InviteStartCount;
     /**
      * 订阅号？
      */
-    private int MPSubscribeMsgCount;
+    private Long MPSubscribeMsgCount;
     private List MPSubscribeMsgList;
     private String SKey;
     private JSONObject SyncKey;
@@ -65,19 +65,19 @@ public class WechatInitEntity {
         ChatSet = chatSet;
     }
 
-    public int getClickReportInterval() {
+    public Long getClickReportInterval() {
         return ClickReportInterval;
     }
 
-    public void setClickReportInterval(int clickReportInterval) {
+    public void setClickReportInterval(Long clickReportInterval) {
         ClickReportInterval = clickReportInterval;
     }
 
-    public int getClientVersion() {
+    public Long getClientVersion() {
         return ClientVersion;
     }
 
-    public void setClientVersion(int clientVersion) {
+    public void setClientVersion(Long clientVersion) {
         ClientVersion = clientVersion;
     }
 
@@ -89,35 +89,35 @@ public class WechatInitEntity {
         ContactList = contactList;
     }
 
-    public int getCount() {
+    public Long getCount() {
         return Count;
     }
 
-    public void setCount(int count) {
+    public void setCount(Long count) {
         Count = count;
     }
 
-    public int getGrayScale() {
+    public Long getGrayScale() {
         return GrayScale;
     }
 
-    public void setGrayScale(int grayScale) {
+    public void setGrayScale(Long grayScale) {
         GrayScale = grayScale;
     }
 
-    public int getInviteStartCount() {
+    public Long getInviteStartCount() {
         return InviteStartCount;
     }
 
-    public void setInviteStartCount(int inviteStartCount) {
+    public void setInviteStartCount(Long inviteStartCount) {
         InviteStartCount = inviteStartCount;
     }
 
-    public int getMPSubscribeMsgCount() {
+    public Long getMPSubscribeMsgCount() {
         return MPSubscribeMsgCount;
     }
 
-    public void setMPSubscribeMsgCount(int MPSubscribeMsgCount) {
+    public void setMPSubscribeMsgCount(Long MPSubscribeMsgCount) {
         this.MPSubscribeMsgCount = MPSubscribeMsgCount;
     }
 

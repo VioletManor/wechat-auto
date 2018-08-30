@@ -7,11 +7,11 @@ package xyz.ipurple.wechat.base.core.init;
  * @Modified By:
  */
 public class UserEntity {
-    private int AppAccountFlag;
-    private int ContactFlag;
-    private int HeadImgFlag;
+    private Long AppAccountFlag;
+    private Long ContactFlag;
+    private Long HeadImgFlag;
     private String HeadImgUrl;
-    private int HideInputBarFlag;
+    private Long HideInputBarFlag;
     private String NickName;
     private String PYInitial;
     private String PYQuanPin;
@@ -20,34 +20,34 @@ public class UserEntity {
     private String RemarkPYQuanPin;
     private int Sex;
     private String Signature;
-    private int SnsFlag;
-    private int StarFriend;
+    private Long SnsFlag;
+    private Long StarFriend;
     private Long Uin;
     private String UserName;
-    private int VerifyFlag;
-    private int WebWxPluginSwitch;
+    private Long VerifyFlag;
+    private Long WebWxPluginSwitch;
 
-    public int getAppAccountFlag() {
+    public Long getAppAccountFlag() {
         return AppAccountFlag;
     }
 
-    public void setAppAccountFlag(int appAccountFlag) {
+    public void setAppAccountFlag(Long appAccountFlag) {
         AppAccountFlag = appAccountFlag;
     }
 
-    public int getContactFlag() {
+    public Long getContactFlag() {
         return ContactFlag;
     }
 
-    public void setContactFlag(int contactFlag) {
+    public void setContactFlag(Long contactFlag) {
         ContactFlag = contactFlag;
     }
 
-    public int getHeadImgFlag() {
+    public Long getHeadImgFlag() {
         return HeadImgFlag;
     }
 
-    public void setHeadImgFlag(int headImgFlag) {
+    public void setHeadImgFlag(Long headImgFlag) {
         HeadImgFlag = headImgFlag;
     }
 
@@ -59,11 +59,11 @@ public class UserEntity {
         HeadImgUrl = headImgUrl;
     }
 
-    public int getHideInputBarFlag() {
+    public Long getHideInputBarFlag() {
         return HideInputBarFlag;
     }
 
-    public void setHideInputBarFlag(int hideInputBarFlag) {
+    public void setHideInputBarFlag(Long hideInputBarFlag) {
         HideInputBarFlag = hideInputBarFlag;
     }
 
@@ -131,19 +131,19 @@ public class UserEntity {
         Signature = signature;
     }
 
-    public int getSnsFlag() {
+    public Long getSnsFlag() {
         return SnsFlag;
     }
 
-    public void setSnsFlag(int snsFlag) {
+    public void setSnsFlag(Long snsFlag) {
         SnsFlag = snsFlag;
     }
 
-    public int getStarFriend() {
+    public Long getStarFriend() {
         return StarFriend;
     }
 
-    public void setStarFriend(int starFriend) {
+    public void setStarFriend(Long starFriend) {
         StarFriend = starFriend;
     }
 
@@ -163,19 +163,19 @@ public class UserEntity {
         UserName = userName;
     }
 
-    public int getVerifyFlag() {
+    public Long getVerifyFlag() {
         return VerifyFlag;
     }
 
-    public void setVerifyFlag(int verifyFlag) {
+    public void setVerifyFlag(Long verifyFlag) {
         VerifyFlag = verifyFlag;
     }
 
-    public int getWebWxPluginSwitch() {
+    public Long getWebWxPluginSwitch() {
         return WebWxPluginSwitch;
     }
 
-    public void setWebWxPluginSwitch(int webWxPluginSwitch) {
+    public void setWebWxPluginSwitch(Long webWxPluginSwitch) {
         WebWxPluginSwitch = webWxPluginSwitch;
     }
 }

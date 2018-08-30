@@ -1,10 +1,13 @@
 package xyz.ipurple.wechat.login;
 
+import org.apache.commons.beanutils.BeanUtils;
 import xyz.ipurple.wechat.base.constants.Constants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.base.util.WechatHelper;
 import xyz.ipurple.wechat.listener.WechatListener;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @ClassName: Login
@@ -48,7 +51,13 @@ public class Login implements Runnable {
         //登陆成功后进行初始化
         WechatHelper.init(wechatInfo);
         WechatInfo wechatInfoThreadLocal = UserContext.getWechatInfoThreadLocal();
-        wechatInfoThreadLocal = wechatInfo;
+        try {
+            BeanUtils.copyProperties(wechatInfoThreadLocal, wechatInfo);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
         //开启状态更新
         WechatHelper.statusNotify(wechatInfo);
         //获取联系人

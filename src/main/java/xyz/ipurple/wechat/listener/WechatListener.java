@@ -58,6 +58,10 @@ public class WechatListener {
                             //语音消息
                             logger.info("收到语音消息：" + next.getContent());
                             continue;
+                        } else if (next.getMsgType() == WechatMsgConstants.FILE_MSG) {
+                            //文件消息
+                            logger.info("收到文件：" + next.getContent());
+                            continue;
                         } else {
                             if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
                                 //撤回消息处理
@@ -68,7 +72,9 @@ public class WechatListener {
                     }
                 }
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                logger.error("UnsupportedEncodingException", e);
+            } catch (NullPointerException e) {
+                logger.error("NullPointerException", e);
             }
         }
     }

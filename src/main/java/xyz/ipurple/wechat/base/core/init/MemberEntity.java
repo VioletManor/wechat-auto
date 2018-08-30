@@ -7,10 +7,10 @@ package xyz.ipurple.wechat.base.core.init;
  * @Modified By:
  */
 public class MemberEntity {
-    private int AttrStatus;
+    private Long AttrStatus;
     private String DisplayName;
     private String KeyWord;
-    private int MemberStatus;
+    private Long MemberStatus;
     private String NickName;
     private String PYInitial;
     private String PYQuanPin;
@@ -19,11 +19,11 @@ public class MemberEntity {
     private Long Uin;
     private String UserName;
 
-    public int getAttrStatus() {
+    public Long getAttrStatus() {
         return AttrStatus;
     }
 
-    public void setAttrStatus(int attrStatus) {
+    public void setAttrStatus(Long attrStatus) {
         AttrStatus = attrStatus;
     }
 
@@ -43,11 +43,11 @@ public class MemberEntity {
         KeyWord = keyWord;
     }
 
-    public int getMemberStatus() {
+    public Long getMemberStatus() {
         return MemberStatus;
     }
 
-    public void setMemberStatus(int memberStatus) {
+    public void setMemberStatus(Long memberStatus) {
         MemberStatus = memberStatus;
     }
 
