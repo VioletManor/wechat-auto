@@ -145,6 +145,9 @@ public class WechatHelper {
         //获取登陆人信息
         wechatInfo.setUser(wechatInitEntity.getUser());
 
+        if (wechatInitEntity.getSyncKey().getInteger("Count").equals(0)) {
+            throw new RuntimeException("2018年后注册的微信账号不能登陆");
+        }
         //获取sync 字符串型
         wechatInfo.setSyncKeyStr(createSyncKey(wechatInitEntity.getSyncKey()));
         wechatInfo.setSyncKey(wechatInitEntity.getSyncKey());

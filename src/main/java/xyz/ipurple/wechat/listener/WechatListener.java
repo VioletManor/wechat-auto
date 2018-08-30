@@ -69,12 +69,17 @@ public class WechatListener {
                                 continue;
                             }
                         }
+                    } else {
+                        Thread.sleep(2000);
+                        continue;
                     }
                 }
             } catch (UnsupportedEncodingException e) {
                 logger.error("UnsupportedEncodingException", e);
             } catch (NullPointerException e) {
                 logger.error("NullPointerException", e);
+            } catch (InterruptedException e) {
+                logger.error("InterruptedException", e);
             }
         }
     }

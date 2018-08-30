@@ -5,6 +5,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -45,6 +46,7 @@ public class HttpClientHelper {
     private String charSet = "utf-8";
     private String contentType = "application/json";
     private List<NameValuePair> params = null;
+    RequestConfig requestConfig = null;
 
     public HttpClientHelper(String url) {
         this.url = url;
@@ -74,6 +76,9 @@ public class HttpClientHelper {
                 StringEntity se = new StringEntity(payLoad, contentType, charSet);
                 httpPost.setEntity(se);
             }
+            if (null != requestConfig) {
+                httpPost.setConfig(requestConfig);
+            }
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String responseContent = getResponseContent(response);
             return getHttpResponse(responseContent);
@@ -91,6 +96,9 @@ public class HttpClientHelper {
         try {
             createHttpClient();
             httpGet = new HttpGet(url);
+            if (null != requestConfig) {
+                httpGet.setConfig(requestConfig);
+            }
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseContent = getResponseContent(response);
             return getHttpResponse(responseContent);
@@ -108,6 +116,9 @@ public class HttpClientHelper {
             httpPost = new HttpPost(url);
             if (params != null) {
                 httpPost.setEntity(new UrlEncodedFormEntity(params, charSet));
+            }
+            if (null != requestConfig) {
+                httpPost.setConfig(requestConfig);
             }
             HttpResponse httpResponse = doPost();
             CloseableHttpResponse response = httpClient.execute(httpPost);
@@ -216,6 +227,11 @@ public class HttpClientHelper {
 
     public HttpClientHelper setParams(List<NameValuePair> params) {
         this.params = params;
+        return this;
+    }
+
+    public HttpClientHelper setRequestConfig(int socketTimeOut, int connectTimeOut) {
+        this.requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeOut).setConnectTimeout(connectTimeOut).build();//设置请求和传输超时时间
         return this;
     }
 }

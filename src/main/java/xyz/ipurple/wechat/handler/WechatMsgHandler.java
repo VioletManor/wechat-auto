@@ -11,6 +11,10 @@ import xyz.ipurple.wechat.base.util.MatcheHelper;
 import xyz.ipurple.wechat.base.util.WechatHelper;
 import xyz.ipurple.wechat.login.UserContext;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author: zcy
  * @Description:
@@ -20,12 +24,40 @@ import xyz.ipurple.wechat.login.UserContext;
 public class WechatMsgHandler {
     private static final Logger logger = Logger.getLogger(WechatMsgHandler.class);
 
+    private static BlockingQueue<MsgEntity> BLOCKING_QUEUE = new LinkedBlockingQueue<>(50);
+
+    static {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    logger.info("从队列中获取撤回消息");
+                    MsgEntity msgEntity = BLOCKING_QUEUE.take();
+                    if (!revokeMsgHandler(msgEntity)) {
+                        logger.info("未发现待撤回消息，稍后继续重试");
+                        BLOCKING_QUEUE.offer(msgEntity, 5, TimeUnit.SECONDS);
+                    } else {
+                        logger.info("从队列中获取撤回消息成功");
+                        Thread.sleep(2000);
+                    }
+                } catch (InterruptedException e) {
+                    logger.info("从队列中获取撤回消息失败", e);
+                }
+            }
+        }).start();
+    }
+
+
     /**
      * 撤回消息处理
      * @param msgEntity msgEntity
      */
-    public static void revokeMsgHandler(MsgEntity msgEntity) {
+    public static Boolean revokeMsgHandler(MsgEntity msgEntity) {
         RevokeMsgInfo revokeMsgInfo = getRevokeMsgInfo(msgEntity);
+        //防止消息未到达，撤回消息先到达，导致获取撤回消息失败。
+        if (null == revokeMsgInfo) {
+            return false;
+        }
+
         int msgType = revokeMsgInfo.getMsgType();
         if (revokeMsgInfo != null) {
             if (msgType == WechatMsgConstants.TEXT_MSG) {                    //普通文本消息
@@ -45,6 +77,7 @@ public class WechatMsgHandler {
 //                WechatHelper.sendImageFileMsg(revokeMsgInfo.getContent(), WeChatContactConstants.FILE_HELPER);
             }
         }
+        return true;
     }
 
     //获取撤回人信息
