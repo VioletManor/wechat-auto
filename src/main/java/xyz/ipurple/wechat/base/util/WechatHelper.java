@@ -71,7 +71,7 @@ public class WechatHelper {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+                    UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
                     QRCodeWindow qrCodeWindow = new QRCodeWindow(path);
                     QR_CODE_WINDOW = qrCodeWindow;
                 } catch (Exception e) {
