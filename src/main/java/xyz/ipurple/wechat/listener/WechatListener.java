@@ -49,6 +49,7 @@ public class WechatListener {
                             continue;
                         } else {
                             UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
+                            UserContext.clearExpireMsg();
                             //接收消息处理
                             MSG_HANDLER.receiveHandler(next);
                         }

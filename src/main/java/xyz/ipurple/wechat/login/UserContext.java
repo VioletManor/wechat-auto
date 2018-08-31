@@ -3,8 +3,10 @@ package xyz.ipurple.wechat.login;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
+import xyz.ipurple.wechat.base.util.DateUtil;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -41,8 +43,27 @@ public class UserContext {
     public static Map<Long, MsgEntity> getMsgThreadLocal() {
         Map<Long, MsgEntity> msgHashMap = MSG.get();
         if (null == msgHashMap) {
-            MSG.set(msgHashMap = new HashMap<>());
+            MSG.set(msgHashMap = new HashMap<>(500));
         }
         return msgHashMap;
+    }
+
+    public static void clearExpireMsg() {
+        Map<Long, MsgEntity> msgHashMap = MSG.get();
+        if (msgHashMap.size() > 400) {
+            System.out.println("size:"+msgHashMap.size());
+            new Thread(() -> {
+                Iterator<Map.Entry<Long, MsgEntity>> msgIt = msgHashMap.entrySet().iterator();
+                while (msgIt.hasNext()) {
+                    Map.Entry<Long, MsgEntity> next = msgIt.next();
+                    Long createTime = next.getValue().getCreateTime();
+                    Long curTime = DateUtil.getSecondTimestamp();
+                    if (curTime - createTime > 60 * 2) {
+
+                        msgIt.remove();
+                    }
+                }
+            });
+        }
     }
 }
