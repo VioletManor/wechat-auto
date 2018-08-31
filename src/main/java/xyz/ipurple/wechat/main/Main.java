@@ -1,10 +1,11 @@
 package xyz.ipurple.wechat.main;
 
-import xyz.ipurple.wechat.listener.WechatListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.ipurple.wechat.login.Login;
 
 public class Main {
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(WechatListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         Thread t = new Thread(new Login());

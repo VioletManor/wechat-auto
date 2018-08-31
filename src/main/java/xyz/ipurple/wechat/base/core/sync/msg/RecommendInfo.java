@@ -2,7 +2,7 @@ package xyz.ipurple.wechat.base.core.sync.msg;
 
 /**
  * @ClassName: RecommendInfo
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/8 10:40
  * @Version: 1.0

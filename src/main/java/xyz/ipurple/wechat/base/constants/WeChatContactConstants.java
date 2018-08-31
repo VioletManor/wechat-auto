@@ -2,7 +2,7 @@ package xyz.ipurple.wechat.base.constants;
 
 /**
  * @ClassName: WeChatContactConstants
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/13 13:15
  * @Version: 1.0

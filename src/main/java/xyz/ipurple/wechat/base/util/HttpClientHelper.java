@@ -17,7 +17,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,13 +29,13 @@ import java.util.List;
 
 /**
  * @ClassName: HttpClientHelper
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/6 10:34
  * @Version: 1.0
  */
 public class HttpClientHelper {
-    private static final Logger logger = org.apache.log4j.Logger.getLogger(FileHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileHelper.class);
 
     private String url;
     private String cookie;

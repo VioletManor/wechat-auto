@@ -2,7 +2,8 @@ package xyz.ipurple.wechat.listener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.ipurple.wechat.base.constants.Constants;
 import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
@@ -12,13 +13,13 @@ import xyz.ipurple.wechat.base.util.HttpClientHelper;
 import xyz.ipurple.wechat.base.util.HttpResponse;
 import xyz.ipurple.wechat.base.util.WechatHelper;
 import xyz.ipurple.wechat.handler.WechatMsgHandler;
+import xyz.ipurple.wechat.handler.message.IMessageHandler;
 import xyz.ipurple.wechat.login.UserContext;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * @ClassName: WechatListener
@@ -28,7 +29,8 @@ import java.util.List;
  * @Version: 1.0
  */
 public class WechatListener {
-    private static final Logger logger = Logger.getLogger(WechatListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(WechatListener.class);
+    private static final IMessageHandler MSG_HANDLER = new WechatMsgHandler();
 
     public void listen() {
         WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
@@ -36,43 +38,22 @@ public class WechatListener {
             try {
                 logger.info("正在监听:");
                 String selector = syncCheck(wechatInfo);
-                //TODO 对语音和图片消息做处理
                 if (selector.equals("2")) {  //有消息
                     SyncEntity syncEntity = getTextMsg(wechatInfo);
                     Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
-                    if (msgIt.hasNext()) {
+                    while (msgIt.hasNext()) {
                         MsgEntity next = msgIt.next();
-                        if (next.getMsgType() == WechatMsgConstants.TEXT_MSG) {
-                            //文本消息 包括emoji表情
-                            logger.info("收到普通消息： " + next.getContent());
-                            continue;
-                        } else if (next.getMsgType() == WechatMsgConstants.IMAGE_FILE_MSG) {
-                            //图片文件
-                            logger.info("收到图片：" + next.getContent());
-                            continue;
-                        } else if (next.getMsgType() == WechatMsgConstants.IMAGE_EXPRESSION_MSG) {
-                            //图片表情（收藏的表情之类的）
-                            logger.info("收到图片表情：" + next.getContent());
-                            continue;
-                        } else if (next.getMsgType() == WechatMsgConstants.VOICE_MSG) {
-                            //语音消息
-                            logger.info("收到语音消息：" + next.getContent());
-                            continue;
-                        } else if (next.getMsgType() == WechatMsgConstants.FILE_MSG) {
-                            //文件消息
-                            logger.info("收到文件：" + next.getContent());
+                        if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
+                            //撤回消息处理
+                            MSG_HANDLER.revokeHandler(next);
                             continue;
                         } else {
-                            if (next.getMsgType() == WechatMsgConstants.REVOKE_MSG) {
-                                //撤回消息处理
-                                WechatMsgHandler.revokeMsgHandler(next);
-                                continue;
-                            }
+                            UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
+                            //接收消息处理
+                            MSG_HANDLER.receiveHandler(next);
                         }
-                    } else {
-                        Thread.sleep(2000);
-                        continue;
                     }
+                    Thread.sleep(2000);
                 }
             } catch (UnsupportedEncodingException e) {
                 logger.error("UnsupportedEncodingException", e);
@@ -134,14 +115,6 @@ public class WechatListener {
         int ret = syncEntity.getBaseResponse().getRet();
         if (ret != 0) {
             throw new RuntimeException("获取最新消息失败");
-        }
-        List<MsgEntity> addMsgList = syncEntity.getAddMsgList();
-        if (!addMsgList.isEmpty()) {
-            Iterator<MsgEntity> msgIterator = addMsgList.iterator();
-            while (msgIterator.hasNext()) {
-                MsgEntity next = msgIterator.next();
-                UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
-            }
         }
         return syncEntity;
     }

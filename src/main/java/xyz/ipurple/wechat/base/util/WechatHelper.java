@@ -5,7 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.ipurple.wechat.base.constants.Constants;
 import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
@@ -23,13 +24,13 @@ import java.util.Map;
 
 /**
  * @ClassName: WechatHelper
- * @Description: //TODO
+ * @Description: 微信工具类
  * @Author: zcy
  * @Date: 2018/8/6 10:32
  * @Version: 1.0
  */
 public class WechatHelper {
-    private static final Logger logger = Logger.getLogger(WechatHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(WechatHelper.class);
 
     private static QRCodeWindow QR_CODE_WINDOW = null;
 

@@ -6,7 +6,7 @@ import java.awt.*;
 
 /**
  * @ClassName: QRCodeWindow
- * @Description: //TODO
+ * @Description:
  * @Author: zcy
  * @Date: 2018/8/6 16:45
  * @Version: 1.0
