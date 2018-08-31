@@ -59,11 +59,10 @@ public class UserContext {
                     Long createTime = next.getValue().getCreateTime();
                     Long curTime = DateUtil.getSecondTimestamp();
                     if (curTime - createTime > 60 * 2) {
-
                         msgIt.remove();
                     }
                 }
-            });
+            }).start();
         }
     }
 }
