@@ -31,13 +31,12 @@ public class WechatMsgHandler {
             while (true) {
                 try {
                     logger.info("从队列中获取撤回消息");
-                    MsgEntity msgEntity = BLOCKING_QUEUE.take();
-                    if (!revokeMsgHandler(msgEntity)) {
-                        logger.info("未发现待撤回消息，稍后继续重试");
+                    MsgEntity msgEntity = BLOCKING_QUEUE.poll(5, TimeUnit.SECONDS);
+                    if (null == msgEntity && !revokeMsgHandler(msgEntity)) {
+                        logger.info("消息容器中未发现待撤回消息，稍后继续重试");
                         BLOCKING_QUEUE.offer(msgEntity, 5, TimeUnit.SECONDS);
                     } else {
                         logger.info("从队列中获取撤回消息成功");
-                        Thread.sleep(2000);
                     }
                 } catch (InterruptedException e) {
                     logger.info("从队列中获取撤回消息失败", e);
@@ -75,6 +74,9 @@ public class WechatMsgHandler {
 //                StringBuffer revokeMsgContent = getPreContentForRevokeMsg(revokeMsgInfo).append("语音消息:");
 //                WechatHelper.sendTextMsg(revokeMsgContent.toString(), WeChatContactConstants.FILE_HELPER);
 //                WechatHelper.sendImageFileMsg(revokeMsgInfo.getContent(), WeChatContactConstants.FILE_HELPER);
+            } else if (msgType == WechatMsgConstants.FILE_MSG) {                //文件
+            } else if (msgType == 0) {                                           //短视频
+
             }
         }
         return true;

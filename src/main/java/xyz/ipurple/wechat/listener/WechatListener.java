@@ -137,7 +137,11 @@ public class WechatListener {
         }
         List<MsgEntity> addMsgList = syncEntity.getAddMsgList();
         if (!addMsgList.isEmpty()) {
-            UserContext.getMsgThreadLocal().put(addMsgList.get(0).getMsgId(), addMsgList.get(0));
+            Iterator<MsgEntity> msgIterator = addMsgList.iterator();
+            while (msgIterator.hasNext()) {
+                MsgEntity next = msgIterator.next();
+                UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
+            }
         }
         return syncEntity;
     }
