@@ -40,6 +40,10 @@ public class WechatListener {
             try {
                 logger.info("正在监听:");
                 int[] result = WechatHelper.syncCheck(wechatInfo);
+                if (result[0] == 1100 || result[0] == 1101) {
+                    logger.info("用户微信退出");
+                    break;
+                }
                 if (2 == result[1]) {  //有消息
                     SyncEntity syncEntity = WechatHelper.getTextMsg(wechatInfo);
                     Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
