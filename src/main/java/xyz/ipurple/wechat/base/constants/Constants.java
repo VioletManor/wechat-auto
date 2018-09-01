@@ -8,7 +8,7 @@ package xyz.ipurple.wechat.base.constants;
  * @Version: 1.0
  */
 public class Constants {
-    public static final Boolean RECEIVE_MSG_FLAG = true;
+    public static final Boolean RECEIVE_MSG_FLAG = false;
     public static final String HTTP_OK = "200";
     public static final String QRCODE_TEMP_DIR = "/usr/local/wechat/qrcode/";
     public static final String NEW_WECHAT_CAN_NOT_LOGIN = "1203";
@@ -29,6 +29,8 @@ public class Constants {
      * 初始化
      */
     public static final String INIT_URL = "/webwxinit";
+
+    public static final String GET_ICON = "/webwxgeticon";
 
     public static final String[] SYNC_HOST = {
             "webpush.weixin.qq.com", "webpush.wechat.com", "webpush1.wechat.com",

@@ -170,6 +170,22 @@ public class WechatHelper {
         }
     }
 
+    public static String getIcon(WechatInfo wechatInfo, String userName) {
+        StringBuffer url = new StringBuffer(wechatInfo.getBaseUrl() + Constants.GET_ICON);
+        url.append("?seq=").append(System.currentTimeMillis())
+                .append("&username=").append(userName)
+                .append("&skey=").append(wechatInfo.getSkey());
+        HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).doPostFile(Constants.QRCODE_TEMP_DIR, userName+".jpg");
+        String filePath = Constants.QRCODE_TEMP_DIR + userName + ".jpg";
+        File image = new File(filePath);
+        if (image.exists()) {
+            String imageBase64 = FileUtil.getImageBase64(filePath);
+            image.delete();
+            return imageBase64;
+        }
+        return null;
+    }
+
     public static void statusNotify(WechatInfo wechatInfo) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("lang", "zh_CN"));
