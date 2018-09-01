@@ -22,7 +22,7 @@ public class ImageExpressionMessageHandler extends ImageExpressionAbstractMessag
     @Override
     public void receiveHandler(MsgEntity msgEntity) {
         if (Constants.RECEIVE_MSG_FLAG) {
-            logger.info("收到图片表情");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--收到图片表情");
         }
     }
 

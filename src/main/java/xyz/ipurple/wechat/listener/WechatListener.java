@@ -38,10 +38,10 @@ public class WechatListener {
         WechatHelper.chooseSyncLine(wechatInfo);
         while (true) {
             try {
-                logger.info("正在监听:");
+                logger.info("wechat#" + Thread.currentThread().getId() + "--正在监听:");
                 int[] result = WechatHelper.syncCheck(wechatInfo);
                 if (result[0] == 1100 || result[0] == 1101) {
-                    logger.info("用户微信退出");
+                    logger.info("wechat#" + Thread.currentThread().getId() + "--用户微信退出");
                     break;
                 }
                 if (2 == result[1]) {  //有消息
@@ -54,7 +54,7 @@ public class WechatListener {
                             MSG_HANDLER.revokeHandler(next);
                             continue;
                         } else if (next.getMsgType() == 51) {
-                            logger.info("msgType:{},此消息类型不做处理", next.getMsgType());
+                            logger.info("wechat#" + Thread.currentThread().getId() + "--msgType:{},此消息类型不做处理", next.getMsgType());
                         } else {
                             UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
                             UserContext.clearExpireMsg();

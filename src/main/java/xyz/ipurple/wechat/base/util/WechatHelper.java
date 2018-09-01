@@ -201,9 +201,9 @@ public class WechatHelper {
         HttpResponse httpResponse = HttpClientHelper.build(wechatInfo.getBaseUrl() + Constants.STATUS_NOTIFY_URL, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject notifyResponse = JSON.parseObject(httpResponse.getContent());
         if (!((JSONObject) notifyResponse.get("BaseResponse")).get("Ret").equals(0)) {
-            logger.error("消息通知开启失败");
+            logger.error("wechat#" + Thread.currentThread().getId() + "--消息通知开启失败");
         } else {
-            logger.info("消息通知开启");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--消息通知开启");
         }
     }
 
@@ -217,7 +217,7 @@ public class WechatHelper {
         JSONObject contact = JSONObject.parseObject(httpResponse.getContent());
         String ret = contact.getJSONObject("BaseResponse").getString("Ret");
         if (!ret.equals("0")) {
-            logger.error("获取联系人失败");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--获取联系人失败");
         }
         Iterator<JSONObject> memberListIt = contact.getObject("MemberList", List.class).iterator();
         while (memberListIt.hasNext()) {
@@ -254,9 +254,9 @@ public class WechatHelper {
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
-            logger.error("发送撤回消息失败");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回消息失败");
         } else {
-            logger.info("发送撤回消息成功");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回消息成功");
         }
     }
 
@@ -287,9 +287,9 @@ public class WechatHelper {
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
-            logger.error("发送撤回图片文件失败");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回图片文件失败");
         } else {
-            logger.info("发送撤回图片文件成功");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回图片文件成功");
         }
     }
 
@@ -319,9 +319,9 @@ public class WechatHelper {
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
-            logger.error("发送撤回图片表情失败");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回图片表情失败");
         } else {
-            logger.info("发送撤回图片表情成功");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--发送撤回图片表情成功");
         }
     }
 
@@ -434,7 +434,7 @@ public class WechatHelper {
             int[] result = syncCheck(wechatInfo, syncURL);
             if (0 == result[0]) {
                 wechatInfo.setSyncURL(syncURL);
-                logger.info("选择同步线路{}", syncURL);
+                logger.info("wechat#" + Thread.currentThread().getId() + "--选择同步线路{}", syncURL);
                 break;
             }
         }

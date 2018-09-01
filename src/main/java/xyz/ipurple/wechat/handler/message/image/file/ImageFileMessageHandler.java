@@ -22,7 +22,7 @@ public class ImageFileMessageHandler extends ImageFileAbstractMessageHandler imp
     @Override
     public void receiveHandler(MsgEntity msgEntity) {
         if (Constants.RECEIVE_MSG_FLAG) {
-            logger.info("收到图片文件");
+            logger.info("wechat#" + Thread.currentThread().getId() + "--收到图片文件");
         }
     }
 

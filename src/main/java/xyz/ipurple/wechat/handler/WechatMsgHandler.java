@@ -48,7 +48,7 @@ public class WechatMsgHandler extends AbstractMessageHandler implements IMessage
         if (null != iMessageHandler) {
             iMessageHandler.receiveHandler(msgEntity);
         } else {
-            logger.error("msgType:{},无法找到匹配的消息处理器", msgEntity.getMsgType());
+            logger.info("wechat#" + Thread.currentThread().getId() + "--msgType:{},无法找到匹配的消息处理器", msgEntity.getMsgType());
         }
         return;
     }
@@ -67,7 +67,7 @@ public class WechatMsgHandler extends AbstractMessageHandler implements IMessage
         if (null != iMessageHandler) {
             iMessageHandler.revokeHandler(msgEntity);
         } else {
-            logger.error("msgType:{},无法找到匹配的消息处理器", msgType);
+            logger.info("wechat#" + Thread.currentThread().getId() + "--msgType:{},无法找到匹配的消息处理器", msgType);
         }
         return;
     }

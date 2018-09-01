@@ -22,7 +22,7 @@ public class TxtMessageHandler extends TxtAbstractMessageHandler implements IMes
     @Override
     public void receiveHandler(MsgEntity msgEntity) {
         if (Constants.RECEIVE_MSG_FLAG) {
-            logger.info("收到普通消息:" + msgEntity.getContent());
+            logger.info("wechat#" + Thread.currentThread().getId() + "--收到普通消息:" + msgEntity.getContent());
         }
     }
 
