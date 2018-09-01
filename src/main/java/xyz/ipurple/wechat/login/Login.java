@@ -31,8 +31,8 @@ public class Login implements Runnable {
         WechatInfo wechatInfo = null;
         //等待扫码验证登陆
         while (true) {
-            String res = WechatHelper.waitLogin(0, qrLoginUUID);
-            String code = MatcheHelper.matches("window.code=(\\d+);", res);
+            String result = WechatHelper.waitLogin(0, qrLoginUUID);
+            String code = MatcheHelper.matches("window.code=(\\d+);", result);
             if (!Constants.HTTP_OK.equals(code)) {
                 try {
                     Thread.sleep(2000);
@@ -45,7 +45,7 @@ public class Login implements Runnable {
             WechatHelper.closeQrCode();
             WechatHelper.deleteQrCode(qrCodePath);
             //扫码后跳转至redirectUrl，并初始化基础信息
-            wechatInfo = WechatHelper.redirect(res);
+            wechatInfo = WechatHelper.redirect(result);
             break;
         }
         //登陆成功后进行初始化

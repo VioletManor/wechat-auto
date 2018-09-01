@@ -12,15 +12,16 @@ import xyz.ipurple.wechat.base.constants.WechatMsgConstants;
 import xyz.ipurple.wechat.base.core.WechatInfo;
 import xyz.ipurple.wechat.base.core.init.ContactEntity;
 import xyz.ipurple.wechat.base.core.init.WechatInitEntity;
+import xyz.ipurple.wechat.base.core.sync.SyncEntity;
 import xyz.ipurple.wechat.login.UserContext;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @ClassName: WechatHelper
@@ -88,7 +89,10 @@ public class WechatHelper {
     }
 
     public static void deleteQrCode(String qrCodePath) {
-        new File(qrCodePath).deleteOnExit();
+        File file = new File(qrCodePath);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     public static String waitLogin(int tip, String uuid) {
@@ -110,11 +114,18 @@ public class WechatHelper {
         String redirectUri = MatcheHelper.matches("window.redirect_uri=\"(.*)\"", res);
         HttpResponse httpResponse = HttpClientHelper.build(redirectUri + "&fun=new").doPost();
         String content = httpResponse.getContent();
+        String retCode = MatcheHelper.matches("<ret>(.*)</ret>", content);
+        if (Constants.NEW_WECHAT_CAN_NOT_LOGIN.equals(retCode)) {
+            throw new RuntimeException("2018年后注册的微信账号不能登陆");
+        }
 
         String skey = MatcheHelper.matches("<skey>(.*)</skey>", content);
         String wxsid = MatcheHelper.matches("<wxsid>(.*)</wxsid>", content);
         String wxuin = MatcheHelper.matches("<wxuin>(.*)</wxuin>", content);
         String passTicket = MatcheHelper.matches("<pass_ticket>(.*)</pass_ticket>", content);
+
+        //获取基础url
+        String baseUrl = redirectUri.substring(0, redirectUri.lastIndexOf("/"));
 
         WechatInfo info = new WechatInfo();
         info.setCookie(httpResponse.getCookie());
@@ -122,6 +133,7 @@ public class WechatHelper {
         info.setSkey(skey);
         info.setWxsid(wxsid);
         info.setWxuin(wxuin);
+        info.setBaseUrl(baseUrl);
 
         JSONObject json = new JSONObject();
         json.put("DeviceID", info.getDeviceId());
@@ -140,15 +152,11 @@ public class WechatHelper {
 
         JSONObject payLoad = new JSONObject();
         payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
-        HttpResponse httpResponse = HttpClientHelper.build(Constants.INIT_URL, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
+        HttpResponse httpResponse = HttpClientHelper.build(wechatInfo.getBaseUrl() + Constants.INIT_URL, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         String content = httpResponse.getContent();
         WechatInitEntity wechatInitEntity = JSON.parseObject(content, WechatInitEntity.class);
         //获取登陆人信息
         wechatInfo.setUser(wechatInitEntity.getUser());
-
-        if (wechatInitEntity.getSyncKey().getInteger("Count").equals(0)) {
-            throw new RuntimeException("2018年后注册的微信账号不能登陆");
-        }
         //获取sync 字符串型
         wechatInfo.setSyncKeyStr(createSyncKey(wechatInitEntity.getSyncKey()));
         wechatInfo.setSyncKey(wechatInitEntity.getSyncKey());
@@ -156,7 +164,9 @@ public class WechatHelper {
         Iterator<ContactEntity> iterator = wechatInitEntity.getContactList().iterator();
         while (iterator.hasNext()) {
             ContactEntity next = iterator.next();
-            logger.info(next.getUserName() + "  ||  " + next.getNickName());
+            if (Constants.RECEIVE_MSG_FLAG) {
+                logger.info(next.getUserName() + "  ||  " + next.getNickName());
+            }
         }
     }
 
@@ -172,7 +182,7 @@ public class WechatHelper {
         payLoad.put("FromUserName", wechatInfo.getUser().getUserName());
         payLoad.put("ToUserName", wechatInfo.getUser().getUserName());
 
-        HttpResponse httpResponse = HttpClientHelper.build(Constants.STATUS_NOTIFY_URL, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
+        HttpResponse httpResponse = HttpClientHelper.build(wechatInfo.getBaseUrl() + Constants.STATUS_NOTIFY_URL, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject notifyResponse = JSON.parseObject(httpResponse.getContent());
         if (!((JSONObject) notifyResponse.get("BaseResponse")).get("Ret").equals(0)) {
             logger.error("消息通知开启失败");
@@ -187,7 +197,7 @@ public class WechatHelper {
         params.add(new BasicNameValuePair("r", System.currentTimeMillis() + ""));
         params.add(new BasicNameValuePair("pass_ticket", wechatInfo.getPassicket()));
 
-        HttpResponse httpResponse = HttpClientHelper.build(Constants.GET_CONTACT_URL, wechatInfo.getCookie()).setParams(params).doPost();
+        HttpResponse httpResponse = HttpClientHelper.build(wechatInfo.getBaseUrl() + Constants.GET_CONTACT_URL, wechatInfo.getCookie()).setParams(params).doPost();
         JSONObject contact = JSONObject.parseObject(httpResponse.getContent());
         String ret = contact.getJSONObject("BaseResponse").getString("Ret");
         if (!ret.equals("0")) {
@@ -224,7 +234,7 @@ public class WechatHelper {
         payLoad.put("Msg", msg);
         payLoad.put("Scene", 0);
 
-        String url = Constants.SEND_MSG_URL+ "?pass_ticket=" + wechatInfo.getPassicket();
+        String url = wechatInfo.getBaseUrl() + Constants.SEND_MSG_URL+ "?pass_ticket=" + wechatInfo.getPassicket();
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
@@ -257,7 +267,7 @@ public class WechatHelper {
         payLoad.put("Msg", msg);
         payLoad.put("Scene", 2);
 
-        String url = Constants.SEND_MSG_IMG_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=async&f=json";
+        String url = wechatInfo.getBaseUrl() + Constants.SEND_MSG_IMG_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=async&f=json";
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
@@ -289,7 +299,7 @@ public class WechatHelper {
         payLoad.put("Msg", msg);
         payLoad.put("Scene", 2);
 
-        String url = Constants.SEND_EMOTICON_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=sys&lang=zh_CN";
+        String url = wechatInfo.getBaseUrl() + Constants.SEND_EMOTICON_URL+ "?pass_ticket=" + wechatInfo.getPassicket()+"&fun=sys&lang=zh_CN";
         HttpResponse httpResponse = HttpClientHelper.build(url, wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
         JSONObject response = JSONObject.parseObject(httpResponse.getContent());
         if (!response.getJSONObject("BaseResponse").getString("Ret").equals("0")) {
@@ -306,7 +316,7 @@ public class WechatHelper {
      */
     public static String getMsgImg(Long msgId) {
         WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
-        StringBuffer url = new StringBuffer(Constants.GET_MSG_IMG_URL)
+        StringBuffer url = new StringBuffer(wechatInfo.getBaseUrl() + Constants.GET_MSG_IMG_URL)
                         .append("?MsgID=")
                         .append(msgId)
                         .append("&skey=")
@@ -316,6 +326,70 @@ public class WechatHelper {
         String fileName = msgId + ".jpg";
         HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).doPostFile(Constants.QRCODE_TEMP_DIR, msgId + ".jpg");
         return path + File.separator + fileName;
+    }
+
+    /**
+     * 检查是否有最新消息
+     * @param wechatInfo
+     * @return
+     */
+    public static int[] syncCheck(WechatInfo wechatInfo) {
+        return syncCheck(wechatInfo, null);
+    }
+
+    /**
+     * 检查是否有最新消息
+     * @param wechatInfo
+     * @return
+     */
+    public static int[] syncCheck(WechatInfo wechatInfo, String url) {
+        url = null == url ? wechatInfo.getSyncURL() : url;
+
+        StringBuffer urlParams = new StringBuffer();
+        urlParams.append("?r=").append(System.currentTimeMillis())
+                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey()))
+                .append("&sid=").append(URLEncoder.encode(wechatInfo.getWxsid()))
+                .append("&uin=").append(URLEncoder.encode(wechatInfo.getWxuin()))
+                .append("&deviceid=").append(URLEncoder.encode(wechatInfo.getDeviceId()))
+                .append("&synckey=").append(URLEncoder.encode(wechatInfo.getSyncKeyStr()))
+                .append("&_=").append(System.currentTimeMillis());
+
+        HttpResponse httpResponse = HttpClientHelper.build(url + urlParams.toString(), wechatInfo.getCookie()).doGet();
+        JSONObject syncCheck = JSON.parseObject(httpResponse.getContent().split("=")[1]);
+        int retcode = syncCheck.getIntValue("retcode");
+        int selector = syncCheck.getIntValue("selector");
+        int result[] = {retcode, selector};
+        return result;
+    }
+
+    /**
+     * 获取最新消息
+     * @param wechatInfo
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static SyncEntity getTextMsg(WechatInfo wechatInfo) throws UnsupportedEncodingException {
+        JSONObject payLoad = new JSONObject();
+        payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
+        payLoad.put("SyncKey", wechatInfo.getSyncKey());
+        payLoad.put("rr", ~new Date().getTime());
+
+        StringBuffer url = new StringBuffer(wechatInfo.getBaseUrl()+Constants.SYNC_URL);
+        url.append("?sid=").append(URLEncoder.encode(wechatInfo.getWxsid(),"utf-8"))
+                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey(),"utf-8"))
+                .append("&lang=").append("zh_CN")
+                .append("&pass_ticket=").append(wechatInfo.getPassicket());
+
+        HttpResponse httpResponse = HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
+        SyncEntity syncEntity = JSON.parseObject(httpResponse.getContent(), SyncEntity.class);
+        //更新synckey
+        wechatInfo.setSyncKey(syncEntity.getSyncKey());
+        wechatInfo.setSyncKeyStr(WechatHelper.createSyncKey(syncEntity.getSyncKey()));
+        int ret = syncEntity.getBaseResponse().getRet();
+        if (ret != 0) {
+            throw new RuntimeException("获取最新消息失败");
+        }
+        return syncEntity;
     }
 
     public static String createSyncKey(JSONObject syncKey) {
@@ -329,5 +403,27 @@ public class WechatHelper {
                     .append(next.getString("Val"));
         }
         return sb.substring(1);
+    }
+
+    /**
+     * 选择线路
+     * @param wechatInfo
+     */
+    public static void chooseSyncLine(WechatInfo wechatInfo) {
+        for (String syncHost : Constants.SYNC_HOST) {
+            String syncURL = new StringBuilder("https://")
+                    .append(syncHost)
+                    .append("/cgi-bin/mmwebwx-bin")
+                    .append(Constants.SYNC_CHECK_URL).toString();
+            int[] result = syncCheck(wechatInfo, syncURL);
+            if (0 == result[0]) {
+                wechatInfo.setSyncURL(syncURL);
+                logger.info("选择同步线路{}", syncURL);
+                break;
+            }
+        }
+        if (StringUtils.isBlank(wechatInfo.getSyncURL())) {
+            throw new RuntimeException("没有找到合适的线路");
+        }
     }
 }

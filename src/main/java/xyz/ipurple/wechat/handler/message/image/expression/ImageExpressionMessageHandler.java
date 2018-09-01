@@ -2,6 +2,7 @@ package xyz.ipurple.wechat.handler.message.image.expression;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xyz.ipurple.wechat.base.constants.Constants;
 import xyz.ipurple.wechat.base.constants.WeChatContactConstants;
 import xyz.ipurple.wechat.base.core.revoke.RevokeMsgInfo;
 import xyz.ipurple.wechat.base.core.sync.msg.MsgEntity;
@@ -20,7 +21,9 @@ public class ImageExpressionMessageHandler extends ImageExpressionAbstractMessag
 
     @Override
     public void receiveHandler(MsgEntity msgEntity) {
-        logger.info("收到图片表情");
+        if (Constants.RECEIVE_MSG_FLAG) {
+            logger.info("收到图片表情");
+        }
     }
 
     @Override

@@ -21,6 +21,8 @@ public class WechatInfo {
     private JSONObject syncKey;
     private JSONObject baseRequest;
     private UserEntity user;
+    private String baseUrl;
+    private String syncURL;
 
     @Override
     public String toString() {
@@ -112,5 +114,21 @@ public class WechatInfo {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getSyncURL() {
+        return syncURL;
+    }
+
+    public void setSyncURL(String syncURL) {
+        this.syncURL = syncURL;
     }
 }

@@ -34,12 +34,14 @@ public class WechatListener {
 
     public void listen() {
         WechatInfo wechatInfo = UserContext.getWechatInfoThreadLocal();
+        //选择线路
+        WechatHelper.chooseSyncLine(wechatInfo);
         while (true) {
             try {
                 logger.info("正在监听:");
-                String selector = syncCheck(wechatInfo);
-                if (selector.equals("2")) {  //有消息
-                    SyncEntity syncEntity = getTextMsg(wechatInfo);
+                int[] result = WechatHelper.syncCheck(wechatInfo);
+                if (2 == result[1]) {  //有消息
+                    SyncEntity syncEntity = WechatHelper.getTextMsg(wechatInfo);
                     Iterator<MsgEntity> msgIt = syncEntity.getAddMsgList().iterator();
                     while (msgIt.hasNext()) {
                         MsgEntity next = msgIt.next();
@@ -47,6 +49,8 @@ public class WechatListener {
                             //撤回消息处理
                             MSG_HANDLER.revokeHandler(next);
                             continue;
+                        } else if (next.getMsgType() == 51) {
+                            logger.info("msgType:{},此消息类型不做处理", next.getMsgType());
                         } else {
                             UserContext.getMsgThreadLocal().put(next.getMsgId(), next);
                             UserContext.clearExpireMsg();
@@ -64,59 +68,5 @@ public class WechatListener {
                 logger.error("InterruptedException", e);
             }
         }
-    }
-
-    /**
-     * 检查是否有最新消息
-     * @param wechatInfo
-     * @return
-     */
-    public String syncCheck(WechatInfo wechatInfo) {
-        StringBuffer url = new StringBuffer();
-        url.append("?r=").append(System.currentTimeMillis())
-                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey()))
-                .append("&sid=").append(URLEncoder.encode(wechatInfo.getWxsid()))
-                .append("&uin=").append(URLEncoder.encode(wechatInfo.getWxuin()))
-                .append("&deviceid=").append(URLEncoder.encode(wechatInfo.getDeviceId()))
-                .append("&synckey=").append(URLEncoder.encode(wechatInfo.getSyncKeyStr()))
-                .append("&_=").append(System.currentTimeMillis());
-
-        HttpResponse httpResponse = HttpClientHelper.build(Constants.SYNC_CHECK_URL + url.toString(), wechatInfo.getCookie()).doGet();
-        JSONObject syncCheck = JSON.parseObject(httpResponse.getContent().split("=")[1]);
-        String retcode = syncCheck.get("retcode").toString();
-        if (!retcode.equals("0")) {
-            throw new RuntimeException("sync check 失败");
-        }
-        return syncCheck.get("selector").toString();
-    }
-
-    /**
-     * 获取最新消息
-     * @param wechatInfo
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    public SyncEntity getTextMsg(WechatInfo wechatInfo) throws UnsupportedEncodingException {
-        JSONObject payLoad = new JSONObject();
-        payLoad.put("BaseRequest", wechatInfo.getBaseRequest());
-        payLoad.put("SyncKey", wechatInfo.getSyncKey());
-        payLoad.put("rr", ~new Date().getTime());
-
-        StringBuffer url = new StringBuffer(Constants.SYNC_URL);
-        url.append("?sid=").append(URLEncoder.encode(wechatInfo.getWxsid(),"utf-8"))
-                .append("&skey=").append(URLEncoder.encode(wechatInfo.getSkey(),"utf-8"))
-                .append("&lang=").append("zh_CN")
-                .append("&pass_ticket=").append(wechatInfo.getPassicket());
-
-        HttpResponse httpResponse = HttpClientHelper.build(url.toString(), wechatInfo.getCookie()).setPayLoad(payLoad.toJSONString()).doPost();
-        SyncEntity syncEntity = JSON.parseObject(httpResponse.getContent(), SyncEntity.class);
-        //更新synckey
-        wechatInfo.setSyncKey(syncEntity.getSyncKey());
-        wechatInfo.setSyncKeyStr(WechatHelper.createSyncKey(syncEntity.getSyncKey()));
-        int ret = syncEntity.getBaseResponse().getRet();
-        if (ret != 0) {
-            throw new RuntimeException("获取最新消息失败");
-        }
-        return syncEntity;
     }
 }
